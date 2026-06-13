@@ -1,7 +1,7 @@
 "use client";
 
 import { Cormorant_Garamond, Noto_Kufi_Arabic } from "next/font/google";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BookingFormScreen from "@/components/BookingFormScreen";
 import LandingScreen from "@/components/LandingScreen";
 import { bookingContent } from "@/data/bookingContent";
@@ -56,9 +56,22 @@ export default function BookingApp() {
   const [selected, setSelected] = useState<BookingType>("occasion");
   const [form, setForm] = useState<BookingForm>(initialForm);
   const [notice, setNotice] = useState("");
+  const pushedFormHistoryRef = useRef(false);
 
   const content = bookingContent[lang];
   const fontClass = lang === "en" ? latinFont.className : arabicFont.className;
+
+  useEffect(() => {
+    function handlePopState() {
+      if (pushedFormHistoryRef.current) {
+        pushedFormHistoryRef.current = false;
+        setStep("landing");
+      }
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   function update<K extends keyof BookingForm>(key: K, value: BookingForm[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -71,7 +84,21 @@ export default function BookingApp() {
 
   function openBooking(type: BookingType) {
     setSelected(type);
+    if (!pushedFormHistoryRef.current) {
+      window.history.pushState({ bookingStep: "form" }, "", window.location.href);
+      pushedFormHistoryRef.current = true;
+    }
     setStep("form");
+  }
+
+  function backToLanding() {
+    if (pushedFormHistoryRef.current) {
+      pushedFormHistoryRef.current = false;
+      window.history.back();
+      setStep("landing");
+      return;
+    }
+    setStep("landing");
   }
 
   return (
@@ -95,7 +122,7 @@ export default function BookingApp() {
             content={content}
             update={update}
             onLangChange={setLang}
-            onBack={() => setStep("landing")}
+            onBack={backToLanding}
           />
         )}
       </div>

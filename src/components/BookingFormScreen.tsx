@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import HospitalityForm from "@/components/forms/HospitalityForm";
 import OccasionForm from "@/components/forms/OccasionForm";
 import PhotoSessionForm from "@/components/forms/PhotoSessionForm";
@@ -18,8 +19,9 @@ type Props = {
   onBack: () => void;
 };
 
-const WHATSAPP_NUMBER = "9647XXXXXXXX";
-const FIXED_PRICE = 10;
+const EMAILJS_SERVICE_ID = "service_bm4mbb9";
+const EMAILJS_PUBLIC_KEY = "tivoinl7MHIKAOORE";
+const EMAILJS_TEMPLATE_ID = "template_booking_request";
 
 function hasText(value: string) {
   return value.trim().length > 0;
@@ -34,10 +36,8 @@ export default function BookingFormScreen({
   onLangChange,
   onBack,
 }: Props) {
+  const [sendState, setSendState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const booking = content.types[type];
-  const fixedPrice = type === "tour";
-  const showPaymentPanel = type !== "visit";
-  const total = fixedPrice ? form.guests * FIXED_PRICE : 0;
 
   const isValid =
     hasText(form.fullName) &&
@@ -55,7 +55,7 @@ export default function BookingFormScreen({
     lines.push(`${label}: ${value}`);
   }
 
-  function message() {
+  function bookingMessage() {
     const lines = [booking.title, "----------------"];
     add(lines, content.labels.fullName, form.fullName);
     add(lines, content.labels.phone, form.phone);
@@ -85,17 +85,41 @@ export default function BookingFormScreen({
     add(lines, content.labels.hospitalityType, form.hospitalityType);
     add(lines, content.labels.dietaryNotes, form.dietaryNotes);
     add(lines, content.labels.notes, form.notes);
-    if (fixedPrice) {
-      add(lines, content.total, `$${total}`);
-      add(lines, content.masterCardTransfer, content.masterCardNumber);
-      add(lines, content.labels.paymentRef, form.paymentRef);
-      add(lines, content.labels.paymentNote, form.paymentNote);
-    }
-    return encodeURIComponent(lines.join("\n"));
+    return lines.join("\n");
   }
 
-  function send() {
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message()}`, "_blank");
+  async function send() {
+    setSendState("sending");
+    const details = bookingMessage();
+
+    try {
+      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          service_id: EMAILJS_SERVICE_ID,
+          template_id: EMAILJS_TEMPLATE_ID,
+          user_id: EMAILJS_PUBLIC_KEY,
+          template_params: {
+            booking_type: booking.title,
+            customer_name: form.fullName,
+            customer_phone: form.phone,
+            booking_date: form.date,
+            booking_time: form.time,
+            booking_details: details,
+            message: details,
+            reply_to: form.email || "booking@house-of-antiques.local",
+          },
+        }),
+      });
+
+      if (!response.ok) throw new Error("EmailJS request failed");
+      setSendState("sent");
+    } catch {
+      setSendState("error");
+    }
   }
 
   return (
@@ -160,51 +184,25 @@ export default function BookingFormScreen({
           {type === "hospitality" && <HospitalityForm form={form} lang={lang} content={content} update={update} />}
         </div>
 
-        {showPaymentPanel && (
-          <div className="mt-5 rounded-3xl border border-[#d8a45f]/18 bg-[#120d0a]/45 p-4 backdrop-blur-md">
-            {fixedPrice ? (
-              <div className="space-y-3 text-sm text-[#d8c0a0]">
-                <div className="flex justify-between gap-4">
-                  <span>{content.pricePerPerson}</span>
-                  <strong className="text-[#fff8ea]">
-                    {content.total}: ${total}
-                  </strong>
-                </div>
-                <div>{content.masterCardTransfer}</div>
-                <div className="break-all text-[#f1c982]">{content.masterCardNumber}</div>
-                <div className="pt-2">
-                  <input
-                    value={form.paymentRef}
-                    onChange={(event) => update("paymentRef", event.target.value)}
-                    placeholder={content.labels.paymentRef}
-                    className="h-11 w-full border-0 border-b border-[#d8a45f]/25 bg-transparent text-[#fff8ea] outline-none placeholder:text-[#9f8467]"
-                  />
-                  <input
-                    value={form.paymentNote}
-                    onChange={(event) => update("paymentNote", event.target.value)}
-                    placeholder={content.labels.paymentNote}
-                    className="mt-3 h-11 w-full border-0 border-b border-[#d8a45f]/25 bg-transparent text-[#fff8ea] outline-none placeholder:text-[#9f8467]"
-                  />
-                </div>
-              </div>
-            ) : (
-              <p className="text-sm leading-7 text-[#d8c0a0]">
-                {type === "occasion"
-                  ? content.occasionPricing
-                  : content.hospitalityPricing}
-              </p>
-            )}
-          </div>
-        )}
-
         <button
           type="button"
-          disabled={!isValid}
+          disabled={!isValid || sendState === "sending"}
           onClick={send}
           className="mt-6 w-full rounded-full bg-[#d8a45f] px-5 py-4 text-sm font-medium text-[#120d0a] transition disabled:bg-white/[0.12] disabled:text-[#9f8467]"
         >
-          {content.sendRequest}
+          {sendState === "sending" ? "Sending..." : content.sendRequest}
         </button>
+
+        {sendState === "sent" && (
+          <p className="mt-3 text-center text-xs text-[#f1c982]">
+            تم إرسال تفاصيل الحجز بنجاح
+          </p>
+        )}
+        {sendState === "error" && (
+          <p className="mt-3 text-center text-xs text-[#f1a982]">
+            تعذر الإرسال. تأكد من Template ID في EmailJS.
+          </p>
+        )}
       </div>
     </section>
   );
