@@ -24,3 +24,49 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes stepIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heroFade {
+  from {
+    opacity: 0.72;
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes softReveal {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    max-height: 360px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
