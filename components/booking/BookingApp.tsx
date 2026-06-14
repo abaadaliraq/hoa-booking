@@ -5,7 +5,14 @@ import emailjs from "@emailjs/browser";
 
 import styles from "./booking.module.css";
 import { BookingFormData, BookingType } from "./bookingTypes";
-import { calculateDuration, calculatePayment, getEventTypeName, makeBookingId, nowText, timeToArabic } from "./bookingUtils";
+import {
+  calculateDuration,
+  calculatePayment,
+  getEventTypeName,
+  makeBookingId,
+  nowText,
+  timeToArabic,
+} from "./bookingUtils";
 
 import BookingBanner from "./BookingBanner";
 import BookingTypeSelector from "./BookingTypeSelector";
@@ -89,23 +96,47 @@ export default function BookingApp() {
 
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const payment = useMemo(
-    () => calculatePayment(bookingType, data),
-    [bookingType, data]
-  );
+  const payment = useMemo(() => {
+    return calculatePayment(bookingType, data);
+  }, [bookingType, data]);
 
+  const peopleCount = Number(data.people_count || 0);
+const isSoon =
+  bookingType === "restaurant" ||
+  bookingType === "auction" ||
+  bookingType === "exhibition";
   function update(name: keyof BookingFormData, value: string) {
     setData((prev) => {
-      const next = { ...prev, [name]: value };
+      const next: BookingFormData = {
+        ...prev,
+        [name]: value,
+      };
+
+      if (name === "people_count") {
+        const nextPeopleCount = Number(value || 0);
+
+        if (nextPeopleCount < 4) {
+          next.group_type = "";
+          next.is_foreign = "";
+          next.country = "";
+          next.province = "";
+        }
+      }
 
       if (name === "start_time" || name === "end_time") {
         next.start_time_ar = timeToArabic(next.start_time);
         next.end_time_ar = timeToArabic(next.end_time);
-        next.duration_hours = calculateDuration(next.start_time, next.end_time);
+        next.duration_hours = calculateDuration(
+          next.start_time,
+          next.end_time
+        );
       }
 
       return next;
     });
+
+    setReportData(null);
+    setStatus("");
   }
 
   function buildFinalData() {
@@ -113,10 +144,13 @@ export default function BookingApp() {
       ...data,
       booking_id: data.booking_id || makeBookingId(),
       created_at: data.created_at || nowText(),
+
       event_type: getEventTypeName(bookingType),
+
       start_time_ar: timeToArabic(data.start_time),
       end_time_ar: timeToArabic(data.end_time),
       duration_hours: calculateDuration(data.start_time, data.end_time),
+
       payment_required: payment.payment_required,
       payment_per_person: payment.payment_per_person,
       payment_total: payment.payment_total,
@@ -126,17 +160,66 @@ export default function BookingApp() {
     return finalData;
   }
 
+  function validateBeforeSubmit() {
+    if (isSoon) {
+      return "هذا النوع من الحجز سيتوفر قريبًا.";
+    }
+
+    if (!data.people_count || Number(data.people_count) < 1) {
+      return "اكتبي عدد الأشخاص بشكل صحيح.";
+    }
+
+    if (!data.booking_date) {
+      return "اختاري تاريخ الحجز.";
+    }
+
+    if (!data.start_time) {
+      return "اختاري وقت البداية.";
+    }
+
+    if (!data.end_time) {
+      return "اختاري وقت النهاية.";
+    }
+
+    if (!calculateDuration(data.start_time, data.end_time)) {
+      return "وقت النهاية لازم يكون بعد وقت البداية.";
+    }
+
+    if (!data.full_name.trim()) {
+      return "اكتبي الاسم الكامل.";
+    }
+
+    if (!data.phone.trim()) {
+      return "اكتبي رقم الهاتف.";
+    }
+
+    if (!data.customer_email.trim()) {
+      return "اكتبي الإيميل.";
+    }
+
+    return "";
+  }
+
   function handlePreview() {
-    setStatus("");
+    const validationMessage = validateBeforeSubmit();
+
+    if (validationMessage) {
+      setStatus(validationMessage);
+      return;
+    }
+
     const finalData = buildFinalData();
     setReportData(finalData);
+    setStatus("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (bookingType === "auction" || bookingType === "exhibition") {
-      setStatus("هذا النوع من الحجز سيتوفر قريبًا.");
+    const validationMessage = validateBeforeSubmit();
+
+    if (validationMessage) {
+      setStatus(validationMessage);
       return;
     }
 
@@ -148,7 +231,9 @@ export default function BookingApp() {
     const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
     if (!serviceId || !templateId || !publicKey) {
-      setStatus("إعدادات EmailJS ناقصة. راجعي Environment Variables.");
+      setStatus(
+        "إعدادات EmailJS ناقصة. تأكدي من أسماء المتغيرات داخل .env.local و Vercel."
+      );
       return;
     }
 
@@ -163,24 +248,21 @@ export default function BookingApp() {
       setStatus("تم إرسال طلب الحجز بنجاح.");
     } catch (error) {
       console.error(error);
-      setStatus("فشل إرسال الحجز. المشكلة غالبًا من Template ID أو Public Key.");
+      setStatus("فشل إرسال الحجز. راجعي Template ID و Public Key داخل EmailJS.");
     } finally {
       setSending(false);
     }
   }
 
-  const peopleCount = Number(data.people_count || 0);
-  const isSoon = bookingType === "auction" || bookingType === "exhibition";
-
   return (
     <main className={styles.page}>
       <section className={styles.shell}>
-  <header className={styles.header}>
-  <div className={styles.brandTitle}>
-    <span>بيت التحفيات</span>
-    <small>House of Antiques</small>
-  </div>
-</header>
+        <header className={styles.header}>
+          <div className={styles.brandTitle}>
+            <span>بيت التحفيات</span>
+            <small>House of Antiques</small>
+          </div>
+        </header>
 
         <BookingBanner bookingType={bookingType} />
 
@@ -190,6 +272,14 @@ export default function BookingApp() {
               value={bookingType}
               onChange={(value) => {
                 setBookingType(value);
+                setData((prev) => ({
+                  ...prev,
+                  group_type: "",
+                  is_foreign: "",
+                  country: "",
+                  province: "",
+                  interests: "",
+                }));
                 setReportData(null);
                 setStatus("");
               }}
@@ -201,48 +291,64 @@ export default function BookingApp() {
               </div>
             ) : (
               <>
-<div className={styles.sectionTitle}>تفاصيل الحجز / Booking Details</div>
+                <div className={styles.sectionTitle}>
+                  تفاصيل الحجز / Booking Details
+                </div>
+
                 <div className={styles.twoCols}>
-                <label className={styles.field}>
-  <span>عدد الأشخاص / <small>Guests</small></span>
-  <input
-    type="number"
-    min="1"
-    max="200"
-    value={data.people_count}
-    onChange={(e) => update("people_count", e.target.value)}
-    required
-  />
-</label>
+                  <label className={styles.field}>
+                    <span>
+                      عدد الأشخاص / <small>Guests</small>
+                    </span>
 
-<label className={styles.field}>
-  <span>التاريخ / <small>Date</small></span>
-  <input
-    type="date"
-    value={data.booking_date}
-    onChange={(e) => update("booking_date", e.target.value)}
-    required
-  />
-</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="200"
+                      value={data.people_count}
+                      onChange={(e) => update("people_count", e.target.value)}
+                      required
+                    />
+                  </label>
 
-<label className={styles.field}>
-  <span>وقت البداية / <small>Start Time</small></span>
-  <input
-    type="time"
-    value={data.start_time}
-    onChange={(e) => update("start_time", e.target.value)}
-    required
-  />
-</label>
+                  <label className={styles.field}>
+                    <span>
+                      التاريخ / <small>Date</small>
+                    </span>
 
-<label className={styles.field}>
-  <span>وقت النهاية / <small>End Time</small></span>
-  <input
-    type="time"
-    value={data.end_time}
-    onChange={(e) => update("end_time", e.target.value)}
-  />
-</label>
+                    <input
+                      type="date"
+                      value={data.booking_date}
+                      onChange={(e) => update("booking_date", e.target.value)}
+                      required
+                    />
+                  </label>
+
+                  <label className={styles.field}>
+                    <span>
+                      وقت البداية / <small>Start Time</small>
+                    </span>
+
+                    <input
+                      type="time"
+                      value={data.start_time}
+                      onChange={(e) => update("start_time", e.target.value)}
+                      required
+                    />
+                  </label>
+
+                  <label className={styles.field}>
+                    <span>
+                      وقت النهاية / <small>End Time</small>
+                    </span>
+
+                    <input
+                      type="time"
+                      value={data.end_time}
+                      onChange={(e) => update("end_time", e.target.value)}
+                      required
+                    />
+                  </label>
                 </div>
 
                 {data.start_time && data.end_time && !data.duration_hours && (
@@ -277,18 +383,23 @@ export default function BookingApp() {
 
                 <CustomerFields data={data} update={update} />
 
-                {(bookingType === "visit" || bookingType === "photography") && (
-                  <PaymentFields data={data} update={update} payment={payment} />
+                {(bookingType === "visit" ||
+                  bookingType === "photography") && (
+                  <PaymentFields
+                    data={data}
+                    update={update}
+                    payment={payment}
+                  />
                 )}
 
                 <div className={styles.actions}>
-                 <button type="button" onClick={handlePreview}>
-  عرض الملخص / Preview
-</button>
+                  <button type="button" onClick={handlePreview}>
+                    عرض الملخص / Preview
+                  </button>
 
-<button type="submit" disabled={sending}>
-  {sending ? "جاري الإرسال..." : "إرسال الحجز / Submit"}
-</button>
+                  <button type="submit" disabled={sending}>
+                    {sending ? "جاري الإرسال..." : "إرسال الحجز / Submit"}
+                  </button>
                 </div>
 
                 {status && <p className={styles.status}>{status}</p>}

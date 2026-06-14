@@ -2,7 +2,7 @@ import { BookingType } from "./bookingTypes";
 
 export const CARD_NUMBER = "7146148577";
 
-export const VISIT_PRICE_PER_PERSON = 0;
+export const VISIT_PRICE_PER_PERSON = 15;
 export const PHOTOGRAPHY_PRICE_PER_HOUR = 0;
 
 export const socialLinks: {
@@ -41,11 +41,12 @@ export const bookingOptions: {
     image: "/images/booking/visit.jpg",
   },
   {
-    id: "restaurant",
-    title: "حجز مطعم",
-    en: "Restaurant",
-    image: "/images/booking/restaurant.jpg",
-  },
+  id: "restaurant",
+  title: "حجز مطعم",
+  en: "Restaurant",
+  soon: true,
+  image: "/images/booking/restaurant.jpg",
+},
   {
     id: "photography",
     title: "جلسة تصوير",

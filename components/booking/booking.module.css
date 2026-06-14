@@ -1,29 +1,26 @@
 .page {
   min-height: 100vh;
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.8)),
-    url("/images/booking/visit.jpg") center/cover fixed;
-  color: #f7f1e8;
-  padding: 36px 18px;
+  background: #f7f3ec;
+  color: #241818;
+  padding: 32px 18px;
   font-family: Arial, sans-serif;
 }
 
 .shell {
   width: min(1180px, 100%);
   margin: 0 auto;
-  background: #090909;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #fffdf8;
+  border: 1px solid rgba(90, 20, 20, 0.14);
+  box-shadow: 0 24px 70px rgba(70, 20, 20, 0.12);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 28px 20px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background:
-    radial-gradient(circle at center, rgba(201, 164, 106, 0.055), transparent 55%),
-    #070707;
+  padding: 30px 20px 26px;
+  background: #fffaf2;
+  border-bottom: 1px solid rgba(90, 20, 20, 0.12);
 }
 
 .brandTitle {
@@ -34,23 +31,23 @@
 }
 
 .brandTitle span {
-  font-size: clamp(30px, 7vw, 48px);
+  font-size: clamp(32px, 7vw, 52px);
   line-height: 1.05;
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: -0.04em;
-  color: #f4eee4;
+  color: #4b0f12;
 }
 
 .brandTitle small {
-  color: #c9a46a;
+  color: #8b1e24;
   font-size: 11px;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: 0.28em;
   text-transform: uppercase;
 }
 
 .hero {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(90, 20, 20, 0.12);
 }
 
 .heroImage {
@@ -67,38 +64,28 @@
 }
 
 .heroImage::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent 55%),
-    linear-gradient(to right, rgba(0, 0, 0, 0.55), transparent 50%);
-  pointer-events: none;
+  display: none;
 }
-
 .heroText {
   position: relative;
   z-index: 2;
   direction: rtl;
   text-align: right;
-
   width: fit-content;
   max-width: 72%;
-
   margin-right: 0;
   margin-left: auto;
-
   display: block;
+  color: #3a1012;
 }
 
-.heroSocial {
-  position: absolute;
-  z-index: 3;
-  left: 22px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: grid;
-  gap: 10px;
+.heroText h2 {
+  margin: 0;
+  color: #ffeecc;
+}
+
+.heroText p {
+  color: #fffce2;
 }
 
 .heroSocial {
@@ -113,9 +100,9 @@
 .heroSocial a {
   width: 48px;
   height: 48px;
-  border: 1px solid rgba(247, 241, 232, 0.28);
-  background: rgba(0, 0, 0, 0.42);
-  color: #f7f1e8;
+  border: 1px solid rgba(75, 15, 18, 0.2);
+  background: rgba(255, 253, 248, 0);
+  color: #ffffff;
   text-decoration: none;
   display: grid;
   place-items: center;
@@ -125,8 +112,8 @@
 }
 
 .heroSocial a:hover {
-  border-color: #c9a46a;
-  background: rgba(201, 164, 106, 0.14);
+  border-color: #ffffff;
+  background: #fff;
   transform: translateY(-2px);
 }
 
@@ -145,8 +132,8 @@
   top: calc(100% + 7px);
   left: 50%;
   transform: translateX(-50%);
-  background: #f7f1e8;
-  color: #090909;
+  background: #4b0f12;
+  color: #fffaf2;
   padding: 4px 7px;
   font-size: 10px;
   white-space: nowrap;
@@ -167,58 +154,74 @@
 
 .formPanel {
   padding: 32px;
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  background: #fffdf8;
+  border-left: 1px solid rgba(90, 20, 20, 0.12);
 }
 
 .reportPanel {
   padding: 32px;
-  background: #0f0f0f;
+  background: #f3eadf;
 }
 
-.typeGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+.bookingTypeSelectWrap {
   margin-bottom: 28px;
+  direction: rtl;
+}
+
+.bookingTypeSelectWrap select {
+  cursor: pointer;
+  min-height: 52px;
+  font-weight: 700;
+  color: #4b0f12;
 }
 
 .typeButton {
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: transparent;
-  color: #f7f1e8;
+  border: 1px solid rgba(90, 20, 20, 0.18);
+  background: #fffaf2;
+  color: #2b1b1b;
   padding: 14px;
   text-align: right;
   cursor: pointer;
   min-height: 76px;
+  transition: 0.2s ease;
+}
+
+.typeButton:hover {
+  border-color: rgba(139, 30, 36, 0.55);
+  background: #fff5e9;
 }
 
 .typeButton span {
   display: block;
   font-size: 15px;
+  font-weight: 700;
+  color: #3a1012;
 }
 
 .typeButton small {
   display: block;
   margin-top: 8px;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(43, 27, 27, 0.58);
 }
 
 .activeType {
-  border-color: #c9a46a;
-  background: rgba(201, 164, 106, 0.12);
+  border-color: #8b1e24;
+  background: #f7e8df;
+  box-shadow: inset 0 0 0 1px rgba(139, 30, 36, 0.12);
 }
 
 .sectionTitle {
   margin: 30px 0 16px;
-  color: #c9a46a;
+  color: #8b1e24;
   font-size: 14px;
+  font-weight: 800;
   letter-spacing: 0.08em;
 }
 
 .twoCols {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px 18px;
+  gap: 18px;
 }
 
 .field,
@@ -227,11 +230,26 @@
   flex-direction: column;
   gap: 8px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.68);
+  font-weight: 700;
+  color: rgba(43, 27, 27, 0.68);
 }
 
 .fieldWide {
   grid-column: 1 / -1;
+}
+
+.field span,
+.fieldWide span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.field small,
+.fieldWide small {
+  color: rgba(43, 27, 27, 0.46);
+  font-size: 11px;
+  font-weight: 400;
 }
 
 .field input,
@@ -240,18 +258,27 @@
 .fieldWide input,
 .fieldWide select,
 .fieldWide textarea {
-  border: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
-  background: transparent;
-  color: #fff;
-  padding: 12px 0;
+  width: 100%;
+  border: 1px solid rgba(90, 20, 20, 0.18);
+  background: #fffaf2;
+  color: #241818;
+  padding: 13px 12px;
   outline: none;
   border-radius: 0;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.field textarea,
+.fieldWide textarea {
+  resize: vertical;
+  min-height: 96px;
 }
 
 .field select option,
 .fieldWide select option {
   color: #111;
+  background: #fff;
 }
 
 .field input:focus,
@@ -260,19 +287,27 @@
 .fieldWide input:focus,
 .fieldWide select:focus,
 .fieldWide textarea:focus {
-  border-bottom-color: #c9a46a;
+  border-color: #8b1e24;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(139, 30, 36, 0.08);
 }
 
 .warning {
-  color: #ffb4b4;
+  color: #9a1c1c;
+  background: #fff0f0;
+  border: 1px solid rgba(154, 28, 28, 0.18);
+  padding: 12px 14px;
   font-size: 13px;
+  margin-top: 14px;
 }
 
 .soonBox {
-  border: 1px solid rgba(201, 164, 106, 0.38);
+  border: 1px solid rgba(139, 30, 36, 0.28);
+  background: #fff5e9;
   padding: 24px;
-  color: #c9a46a;
+  color: #8b1e24;
   margin-top: 20px;
+  font-weight: 700;
 }
 
 .paymentBox {
@@ -283,20 +318,21 @@
 }
 
 .paymentBox div {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(90, 20, 20, 0.14);
+  background: #fffaf2;
   padding: 14px;
 }
 
 .paymentBox span {
   display: block;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(43, 27, 27, 0.52);
 }
 
 .paymentBox strong {
   display: block;
   margin-top: 8px;
-  color: #f7f1e8;
+  color: #4b0f12;
 }
 
 .actions,
@@ -308,26 +344,50 @@
 
 .actions button,
 .reportActions button {
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: transparent;
-  color: #fff;
+  border: 1px solid rgba(75, 15, 18, 0.24);
+  background: #fffaf2;
+  color: #4b0f12;
   padding: 14px 20px;
   cursor: pointer;
+  font-weight: 800;
+  transition: 0.2s ease;
+}
+
+.actions button:hover,
+.reportActions button:hover {
+  background: #f7e8df;
+  border-color: #8b1e24;
 }
 
 .actions button:last-child {
-  background: #f7f1e8;
-  color: #090909;
+  background: #4b0f12;
+  color: #fffaf2;
+  border-color: #4b0f12;
+}
+
+.actions button:last-child:hover {
+  background: #8b1e24;
+}
+
+.actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .status {
-  color: #c9a46a;
+  color: #8b1e24;
+  background: #fff5e9;
+  border: 1px solid rgba(139, 30, 36, 0.18);
+  padding: 12px 14px;
   margin-top: 18px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .emptyReport {
   min-height: 260px;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border: 1px dashed rgba(75, 15, 18, 0.24);
+  background: #fffdf8;
   display: grid;
   place-items: center;
   text-align: center;
@@ -336,33 +396,38 @@
 
 .emptyReport span {
   font-size: 26px;
+  color: #4b0f12;
+  font-weight: 800;
 }
 
 .emptyReport p {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(43, 27, 27, 0.56);
 }
 
 .reportCard {
-  background: #f7f1e8;
+  background: #fffdf8;
   color: #111;
   padding: 26px;
   direction: rtl;
+  border: 1px solid rgba(75, 15, 18, 0.16);
+  box-shadow: 0 18px 45px rgba(70, 20, 20, 0.1);
 }
 
 .reportHeader {
-  border-bottom: 2px solid #111;
+  border-bottom: 2px solid #4b0f12;
   padding-bottom: 14px;
   margin-bottom: 18px;
 }
 
 .reportHeader p {
   margin: 0;
-  color: #6b0f0f;
+  color: #8b1e24;
 }
 
 .reportHeader h2 {
   margin: 6px 0;
   font-size: 30px;
+  color: #241818;
 }
 
 .reportHeader span {
@@ -372,14 +437,14 @@
 }
 
 .reportSection {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba(75, 15, 18, 0.14);
   padding: 12px 0;
 }
 
 .reportSection h3,
 .reportNotes h3 {
   margin: 0 0 12px;
-  color: #6b0f0f;
+  color: #8b1e24;
 }
 
 .reportRow {
@@ -391,11 +456,12 @@
 }
 
 .reportRow span {
-  color: #555;
+  color: #666;
 }
 
 .reportRow strong {
   text-align: left;
+  color: #161111;
 }
 
 .reportNotes {
@@ -405,14 +471,15 @@
 @media (max-width: 900px) {
   .page {
     padding: 0;
-    background-attachment: scroll;
+    background: #f7f3ec;
   }
 
   .shell {
+    width: 100%;
     border: 0;
+    box-shadow: none;
   }
 
- @media (max-width: 900px) {
   .header {
     justify-content: center;
     padding: 24px 18px 22px;
@@ -420,18 +487,25 @@
 
   .brandTitle span {
     font-size: 38px;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   .brandTitle small {
     font-size: 10px;
     letter-spacing: 0.22em;
   }
-}
 
   .heroImage {
     min-height: 300px;
     padding: 22px;
+  }
+
+  .heroText {
+    max-width: 88%;
+  }
+
+  .heroText h2 {
+    font-size: 42px;
   }
 
   .heroSocial {
@@ -452,20 +526,6 @@
 
   .heroSocial a span {
     display: none;
-  }
-
-  .heroText h2 {
-    font-size: 52px;
-  }
-}
-
-  .headerSide {
-    margin-top: 18px;
-  }
-
-  .banner {
-    min-height: 220px;
-    padding: 22px;
   }
 
   .formGrid {
@@ -500,6 +560,11 @@
     width: 100%;
   }
 
+  .reportCard {
+    padding: 20px;
+  }
+}
+
 @media print {
   body * {
     visibility: hidden;
@@ -518,31 +583,11 @@
     padding: 36px;
     background: #fff;
     color: #111;
+    box-shadow: none;
+    border: 0;
   }
 
   .reportActions {
     display: none;
   }
-}
-@media (max-width: 900px) {
-  .heroImage {
-    min-height: 300px;
-    padding: 22px;
-  }
-  .heroText h2 {
-    font-size: 52px;
-  }
-}
-.field span,
-.fieldWide span {
-  display: inline-flex;
-  gap: 6px;
-  align-items: baseline;
-}
-
-.field small,
-.fieldWide small {
-  color: rgba(255, 255, 255, 0.42);
-  font-size: 11px;
-  font-weight: 400;
 }

@@ -10,20 +10,28 @@ export default function BookingTypeSelector({
   onChange: (value: BookingType) => void;
 }) {
   return (
-    <div className={styles.typeGrid}>
-      {bookingOptions.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          className={`${styles.typeButton} ${
-            value === item.id ? styles.activeType : ""
-          }`}
-          onClick={() => onChange(item.id)}
+    <div className={styles.bookingTypeSelectWrap}>
+      <label className={styles.fieldWide}>
+        <span>
+          اختر نوع الحجز / <small>Choose Your Experience</small>
+        </span>
+
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value as BookingType)}
         >
-          <span>{item.title}</span>
-          <small>{item.soon ? "قريبًا" : item.en}</small>
-        </button>
-      ))}
+          {bookingOptions.map((option) => (
+            <option
+              key={option.id}
+              value={option.id}
+              disabled={option.soon}
+            >
+              {option.title} / {option.en}
+              {option.soon ? " - قريبًا" : ""}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   );
 }
