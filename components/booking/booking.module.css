@@ -1,0 +1,548 @@
+.page {
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.8)),
+    url("/images/booking/visit.jpg") center/cover fixed;
+  color: #f7f1e8;
+  padding: 36px 18px;
+  font-family: Arial, sans-serif;
+}
+
+.shell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  background: #090909;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background:
+    radial-gradient(circle at center, rgba(201, 164, 106, 0.055), transparent 55%),
+    #070707;
+}
+
+.brandTitle {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+  justify-items: center;
+}
+
+.brandTitle span {
+  font-size: clamp(30px, 7vw, 48px);
+  line-height: 1.05;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: #f4eee4;
+}
+
+.brandTitle small {
+  color: #c9a46a;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.hero {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.heroImage {
+  position: relative;
+  min-height: 360px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  padding: 34px;
+  overflow: hidden;
+  direction: rtl;
+}
+
+.heroImage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent 55%),
+    linear-gradient(to right, rgba(0, 0, 0, 0.55), transparent 50%);
+  pointer-events: none;
+}
+
+.heroText {
+  position: relative;
+  z-index: 2;
+  direction: rtl;
+  text-align: right;
+
+  width: fit-content;
+  max-width: 72%;
+
+  margin-right: 0;
+  margin-left: auto;
+
+  display: block;
+}
+
+.heroSocial {
+  position: absolute;
+  z-index: 3;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  gap: 10px;
+}
+
+.heroSocial {
+  position: absolute;
+  z-index: 3;
+  left: 24px;
+  top: 24px;
+  display: flex;
+  gap: 10px;
+}
+
+.heroSocial a {
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(247, 241, 232, 0.28);
+  background: rgba(0, 0, 0, 0.42);
+  color: #f7f1e8;
+  text-decoration: none;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(8px);
+  transition: 0.2s ease;
+  position: relative;
+}
+
+.heroSocial a:hover {
+  border-color: #c9a46a;
+  background: rgba(201, 164, 106, 0.14);
+  transform: translateY(-2px);
+}
+
+.heroSocial svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.heroSocial a span {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f7f1e8;
+  color: #090909;
+  padding: 4px 7px;
+  font-size: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+.heroSocial a:hover span {
+  opacity: 1;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 0;
+}
+
+.formPanel {
+  padding: 32px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.reportPanel {
+  padding: 32px;
+  background: #0f0f0f;
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.typeButton {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: #f7f1e8;
+  padding: 14px;
+  text-align: right;
+  cursor: pointer;
+  min-height: 76px;
+}
+
+.typeButton span {
+  display: block;
+  font-size: 15px;
+}
+
+.typeButton small {
+  display: block;
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.activeType {
+  border-color: #c9a46a;
+  background: rgba(201, 164, 106, 0.12);
+}
+
+.sectionTitle {
+  margin: 30px 0 16px;
+  color: #c9a46a;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+.twoCols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 18px;
+}
+
+.field,
+.fieldWide {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.fieldWide {
+  grid-column: 1 / -1;
+}
+
+.field input,
+.field select,
+.field textarea,
+.fieldWide input,
+.fieldWide select,
+.fieldWide textarea {
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: #fff;
+  padding: 12px 0;
+  outline: none;
+  border-radius: 0;
+}
+
+.field select option,
+.fieldWide select option {
+  color: #111;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.fieldWide input:focus,
+.fieldWide select:focus,
+.fieldWide textarea:focus {
+  border-bottom-color: #c9a46a;
+}
+
+.warning {
+  color: #ffb4b4;
+  font-size: 13px;
+}
+
+.soonBox {
+  border: 1px solid rgba(201, 164, 106, 0.38);
+  padding: 24px;
+  color: #c9a46a;
+  margin-top: 20px;
+}
+
+.paymentBox {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.paymentBox div {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 14px;
+}
+
+.paymentBox span {
+  display: block;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.paymentBox strong {
+  display: block;
+  margin-top: 8px;
+  color: #f7f1e8;
+}
+
+.actions,
+.reportActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.actions button,
+.reportActions button {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: transparent;
+  color: #fff;
+  padding: 14px 20px;
+  cursor: pointer;
+}
+
+.actions button:last-child {
+  background: #f7f1e8;
+  color: #090909;
+}
+
+.status {
+  color: #c9a46a;
+  margin-top: 18px;
+}
+
+.emptyReport {
+  min-height: 260px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.emptyReport span {
+  font-size: 26px;
+}
+
+.emptyReport p {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.reportCard {
+  background: #f7f1e8;
+  color: #111;
+  padding: 26px;
+  direction: rtl;
+}
+
+.reportHeader {
+  border-bottom: 2px solid #111;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+}
+
+.reportHeader p {
+  margin: 0;
+  color: #6b0f0f;
+}
+
+.reportHeader h2 {
+  margin: 6px 0;
+  font-size: 30px;
+}
+
+.reportHeader span {
+  direction: ltr;
+  display: inline-block;
+  color: #555;
+}
+
+.reportSection {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 12px 0;
+}
+
+.reportSection h3,
+.reportNotes h3 {
+  margin: 0 0 12px;
+  color: #6b0f0f;
+}
+
+.reportRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 0;
+  font-size: 13px;
+}
+
+.reportRow span {
+  color: #555;
+}
+
+.reportRow strong {
+  text-align: left;
+}
+
+.reportNotes {
+  padding-top: 14px;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 0;
+    background-attachment: scroll;
+  }
+
+  .shell {
+    border: 0;
+  }
+
+ @media (max-width: 900px) {
+  .header {
+    justify-content: center;
+    padding: 24px 18px 22px;
+  }
+
+  .brandTitle span {
+    font-size: 38px;
+    font-weight: 300;
+  }
+
+  .brandTitle small {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+  }
+}
+
+  .heroImage {
+    min-height: 300px;
+    padding: 22px;
+  }
+
+  .heroSocial {
+    left: 18px;
+    top: 18px;
+    gap: 8px;
+  }
+
+  .heroSocial a {
+    width: 42px;
+    height: 42px;
+  }
+
+  .heroSocial svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .heroSocial a span {
+    display: none;
+  }
+
+  .heroText h2 {
+    font-size: 52px;
+  }
+}
+
+  .headerSide {
+    margin-top: 18px;
+  }
+
+  .banner {
+    min-height: 220px;
+    padding: 22px;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formPanel,
+  .reportPanel {
+    padding: 22px 18px;
+    border-left: 0;
+  }
+
+  .typeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .twoCols {
+    grid-template-columns: 1fr;
+  }
+
+  .paymentBox {
+    grid-template-columns: 1fr;
+  }
+
+  .actions,
+  .reportActions {
+    flex-direction: column;
+  }
+
+  .actions button,
+  .reportActions button {
+    width: 100%;
+  }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .reportCard,
+  .reportCard * {
+    visibility: visible;
+  }
+
+  .reportCard {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    min-height: 100vh;
+    padding: 36px;
+    background: #fff;
+    color: #111;
+  }
+
+  .reportActions {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  .heroImage {
+    min-height: 300px;
+    padding: 22px;
+  }
+  .heroText h2 {
+    font-size: 52px;
+  }
+}
+.field span,
+.fieldWide span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.field small,
+.fieldWide small {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 11px;
+  font-weight: 400;
+}
