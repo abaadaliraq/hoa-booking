@@ -361,10 +361,6 @@ const isSoon =
                   <VisitFields data={data} update={update} />
                 )}
 
-                {bookingType === "restaurant" && (
-                  <RestaurantFields data={data} update={update} />
-                )}
-
                 {bookingType === "photography" && (
                   <PhotographyFields data={data} update={update} />
                 )}
