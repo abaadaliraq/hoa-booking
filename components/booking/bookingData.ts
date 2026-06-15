@@ -1,9 +1,10 @@
 import { BookingType } from "./bookingTypes";
 
-export const CARD_NUMBER = "7146148577";
+export const MASTER_CARD_NUMBER = "7146148577";
+export const CARD_NUMBER = MASTER_CARD_NUMBER;
 
 export const VISIT_PRICE_PER_PERSON = 15;
-export const PHOTOGRAPHY_PRICE_PER_HOUR = 0;
+export const PHOTOGRAPHY_PRICE_PER_HOUR = 400;
 
 export const socialLinks: {
   label: "Website" | "Store" | "WhatsApp";

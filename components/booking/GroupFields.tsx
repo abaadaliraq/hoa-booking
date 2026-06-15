@@ -19,7 +19,7 @@ export default function GroupFields({
             value={data.group_type}
             onChange={(e) => update("group_type", e.target.value)}
           >
-            <option value="">اختاري</option>
+            <option value="">اختر / Select</option>
             <option value="أصدقاء">أصدقاء</option>
             <option value="عائلة">عائلة</option>
             <option value="زملاء">زملاء</option>
@@ -33,7 +33,7 @@ export default function GroupFields({
             value={data.is_foreign}
             onChange={(e) => update("is_foreign", e.target.value)}
           >
-            <option value="">اختاري</option>
+            <option value="">اختر / Select</option>
             <option value="نعم">نعم</option>
             <option value="لا">لا</option>
           </select>

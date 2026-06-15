@@ -4,9 +4,11 @@ import { BookingFormData } from "./bookingTypes";
 export default function CustomerFields({
   data,
   update,
+  basicOnly = false,
 }: {
   data: BookingFormData;
   update: (name: keyof BookingFormData, value: string) => void;
+  basicOnly?: boolean;
 }) {
   return (
     <>
@@ -21,19 +23,7 @@ export default function CustomerFields({
           <input
             value={data.full_name}
             onChange={(e) => update("full_name", e.target.value)}
-            required
-          />
-        </label>
-
-        <label className={styles.field}>
-          <span>
-            تاريخ الولادة / <small>Date of Birth</small>
-          </span>
-
-          <input
-            type="date"
-            value={data.birthdate}
-            onChange={(e) => update("birthdate", e.target.value)}
+            placeholder="أدخل الاسم الكامل"
             required
           />
         </label>
@@ -47,73 +37,75 @@ export default function CustomerFields({
             type="tel"
             value={data.phone}
             onChange={(e) => update("phone", e.target.value)}
+            placeholder="أدخل رقم الهاتف"
             required
           />
         </label>
 
-        <label className={styles.field}>
-          <span>
-            الإيميل / <small>Email</small>
-          </span>
+        {!basicOnly && (
+          <>
+            <label className={styles.field}>
+              <span>
+                تاريخ الولادة / <small>Date of Birth</small>
+              </span>
 
-          <input
-            type="email"
-            value={data.customer_email}
-            onChange={(e) => update("customer_email", e.target.value)}
-            required
-          />
-        </label>
+              <input
+                type="date"
+                value={data.birthdate}
+                onChange={(e) => update("birthdate", e.target.value)}
+              />
+            </label>
 
-        <label className={styles.field}>
-          <span>
-            هل يوجد أطفال؟ / <small>Children?</small>
-          </span>
+            <label className={styles.field}>
+              <span>
+                هل يوجد أطفال؟ / <small>Children?</small>
+              </span>
 
-          <select
-            value={data.has_kids}
-            onChange={(e) => {
-              update("has_kids", e.target.value);
+              <select
+                value={data.has_kids}
+                onChange={(e) => {
+                  update("has_kids", e.target.value);
 
-              if (e.target.value !== "نعم") {
-                update("youngest_kid_age", "");
-              }
-            }}
-            required
-          >
-            <option value="">اختاري / Select</option>
-            <option value="نعم">نعم / Yes</option>
-            <option value="لا">لا / No</option>
-          </select>
-        </label>
+                  if (e.target.value !== "نعم") {
+                    update("youngest_kid_age", "");
+                  }
+                }}
+              >
+                <option value="">اختر / Select</option>
+                <option value="نعم">نعم / Yes</option>
+                <option value="لا">لا / No</option>
+              </select>
+            </label>
 
-        {data.has_kids === "نعم" && (
-          <label className={styles.field}>
-            <span>
-              عمر أصغر طفل / <small>Youngest Child Age</small>
-            </span>
+            {data.has_kids === "نعم" && (
+              <label className={styles.field}>
+                <span>
+                  عمر أصغر طفل / <small>Youngest Child Age</small>
+                </span>
 
-            <input
-              type="number"
-              min="0"
-              max="17"
-              value={data.youngest_kid_age}
-              onChange={(e) => update("youngest_kid_age", e.target.value)}
-              required
-            />
-          </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="17"
+                  value={data.youngest_kid_age}
+                  onChange={(e) => update("youngest_kid_age", e.target.value)}
+                />
+              </label>
+            )}
+
+            <label className={styles.fieldWide}>
+              <span>
+                ملاحظات / <small>Notes</small>
+              </span>
+
+              <textarea
+                value={data.notes}
+                onChange={(e) => update("notes", e.target.value)}
+                rows={3}
+              />
+            </label>
+          </>
         )}
-
-        <label className={styles.fieldWide}>
-          <span>
-            ملاحظات / <small>Notes</small>
-          </span>
-
-          <textarea
-            value={data.notes}
-            onChange={(e) => update("notes", e.target.value)}
-            rows={3}
-          />
-        </label>
       </div>
     </>
   );

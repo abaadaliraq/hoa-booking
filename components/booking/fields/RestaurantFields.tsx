@@ -16,7 +16,7 @@ export default function RestaurantFields({
         <label className={styles.field}>
           نوع الجلسة
           <select value={data.restaurant_area} onChange={(e) => update("restaurant_area", e.target.value)}>
-            <option value="">اختاري</option>
+            <option value="">اختر / Select</option>
             <option value="داخلية">داخلية</option>
             <option value="خارجية">خارجية</option>
             <option value="حسب المتاح">حسب المتاح</option>
@@ -26,7 +26,7 @@ export default function RestaurantFields({
         <label className={styles.field}>
           نوع الطلب
           <select value={data.restaurant_booking_type} onChange={(e) => update("restaurant_booking_type", e.target.value)}>
-            <option value="">اختاري</option>
+            <option value="">اختر / Select</option>
             <option value="فطور">فطور</option>
             <option value="غداء">غداء</option>
             <option value="عشاء">عشاء</option>

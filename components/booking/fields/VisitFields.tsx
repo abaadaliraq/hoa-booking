@@ -8,37 +8,19 @@ export default function VisitFields({
   data: BookingFormData;
   update: (name: keyof BookingFormData, value: string) => void;
 }) {
-  const peopleCount = Number(data.people_count || 0);
-  const showGroupType = peopleCount >= 4;
-
   return (
-    <>
-      {showGroupType && (
-        <>
-          <div className={styles.sectionTitle}>
-            تفاصيل الزيارة / Visit Details
-          </div>
+    <div className={styles.twoCols}>
+      <label className={styles.field}>
+        <span>
+          هل يوجد أطفال؟ / <small>Children?</small>
+        </span>
 
-          <div className={styles.twoCols}>
-            <label className={styles.fieldWide}>
-              <span>
-                نوع الزوار / <small>Visitor Type</small>
-              </span>
-
-              <select
-                value={data.group_type}
-                onChange={(e) => update("group_type", e.target.value)}
-              >
-                <option value="">اختاري / Select</option>
-                <option value="أصدقاء">أصدقاء / Friends</option>
-                <option value="عائلة">عائلة / Family</option>
-                <option value="زملاء">زملاء / Colleagues</option>
-                <option value="مختلط">مختلط / Mixed</option>
-              </select>
-            </label>
-          </div>
-        </>
-      )}
-    </>
+        <select value={data.has_kids} onChange={(e) => update("has_kids", e.target.value)} required>
+          <option value="">اختر / Select</option>
+          <option value="نعم">نعم / Yes</option>
+          <option value="لا">لا / No</option>
+        </select>
+      </label>
+    </div>
   );
 }

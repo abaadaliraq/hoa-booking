@@ -26,7 +26,7 @@ export default function WorkshopFields({
         <label className={styles.field}>
           تحتاج شاشة عرض؟
           <select value={data.needs_projector} onChange={(e) => update("needs_projector", e.target.value)}>
-            <option value="">اختاري</option>
+            <option value="">اختر / Select</option>
             <option value="نعم">نعم</option>
             <option value="لا">لا</option>
           </select>
@@ -35,7 +35,7 @@ export default function WorkshopFields({
         <label className={styles.field}>
           تحتاج مايكروفون؟
           <select value={data.needs_microphone} onChange={(e) => update("needs_microphone", e.target.value)}>
-            <option value="">اختاري</option>
+            <option value="">اختر / Select</option>
             <option value="نعم">نعم</option>
             <option value="لا">لا</option>
           </select>

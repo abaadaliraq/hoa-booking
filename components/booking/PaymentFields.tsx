@@ -1,10 +1,12 @@
 import styles from "./booking.module.css";
 import { BookingFormData } from "./bookingTypes";
+import { MASTER_CARD_NUMBER } from "./bookingData";
 
 export default function PaymentFields({
   data,
   update,
   payment,
+  priceLabel = "سعر الشخص",
 }: {
   data: BookingFormData;
   update: (name: keyof BookingFormData, value: string) => void;
@@ -14,6 +16,7 @@ export default function PaymentFields({
     payment_total: string;
     payment_card_number: string;
   };
+  priceLabel?: string;
 }) {
   return (
     <>
@@ -21,23 +24,13 @@ export default function PaymentFields({
 
       <div className={styles.paymentBox}>
         <div>
-          <span>الدفع مطلوب؟</span>
-          <strong>{payment.payment_required}</strong>
-        </div>
-
-        <div>
-          <span>سعر الشخص</span>
-          <strong>{payment.payment_per_person}</strong>
+          <span>{priceLabel}</span>
+          <strong>{payment.payment_per_person}$</strong>
         </div>
 
         <div>
           <span>الإجمالي</span>
-          <strong>{payment.payment_total}</strong>
-        </div>
-
-        <div>
-          <span>رقم البطاقة</span>
-          <strong dir="ltr">{payment.payment_card_number}</strong>
+          <strong>{payment.payment_total}$</strong>
         </div>
       </div>
 
@@ -48,28 +41,19 @@ export default function PaymentFields({
             value={data.payment_method}
             onChange={(e) => update("payment_method", e.target.value)}
           >
-            <option value="">اختاري</option>
-            <option value="تحويل إلى بطاقة الماستر كارد">
-              تحويل إلى بطاقة الماستر كارد
-            </option>
+            <option value="">اختر طريقة الدفع</option>
+            <option value="ماستر كارد">ماستر كارد</option>
+            <option value="زين كاش">زين كاش</option>
+            <option value="عند الوصول / اختياري">عند الوصول / اختياري</option>
           </select>
         </label>
 
-        <label className={styles.field}>
-          مرجع الدفع
-          <input
-            value={data.payment_ref}
-            onChange={(e) => update("payment_ref", e.target.value)}
-          />
-        </label>
-
-        <label className={styles.fieldWide}>
-          ملاحظة الدفع
-          <input
-            value={data.payment_notice}
-            onChange={(e) => update("payment_notice", e.target.value)}
-          />
-        </label>
+        {data.payment_method === "ماستر كارد" && (
+          <div className={styles.fieldWide}>
+            <span>رقم بطاقة الماستر كارد للتحويل:</span>
+            <strong dir="ltr">{MASTER_CARD_NUMBER}</strong>
+          </div>
+        )}
       </div>
     </>
   );

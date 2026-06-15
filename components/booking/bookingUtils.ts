@@ -1,6 +1,6 @@
 import { BookingFormData, BookingType } from "./bookingTypes";
 import {
-  CARD_NUMBER,
+  MASTER_CARD_NUMBER,
   PHOTOGRAPHY_PRICE_PER_HOUR,
   VISIT_PRICE_PER_PERSON,
 } from "./bookingData";
@@ -63,35 +63,35 @@ export function calculatePayment(type: BookingType, data: BookingFormData) {
 
   if (type === "visit") {
     return {
-      payment_required: "نعم",
+      payment_required: "-",
       payment_per_person: `${VISIT_PRICE_PER_PERSON}`,
       payment_total: `${people * VISIT_PRICE_PER_PERSON}`,
-      payment_card_number: CARD_NUMBER,
+      payment_card_number: MASTER_CARD_NUMBER,
     };
   }
 
   if (type === "photography") {
     return {
-      payment_required: "نعم",
-      payment_per_person: "—",
+      payment_required: "-",
+      payment_per_person: `${PHOTOGRAPHY_PRICE_PER_HOUR}`,
       payment_total: `${photoHours * PHOTOGRAPHY_PRICE_PER_HOUR}`,
-      payment_card_number: CARD_NUMBER,
+      payment_card_number: MASTER_CARD_NUMBER,
     };
   }
 
   if (type === "restaurant") {
     return {
-      payment_required: "لا / يتم التأكيد بعد التواصل",
+      payment_required: "-",
       payment_per_person: "—",
       payment_total: "يتم الاتفاق بعد التواصل",
-      payment_card_number: CARD_NUMBER,
+      payment_card_number: MASTER_CARD_NUMBER,
     };
   }
 
   return {
-    payment_required: "يتم الاتفاق بعد التواصل",
+    payment_required: "-",
     payment_per_person: "—",
     payment_total: "يتم الاتفاق بعد التواصل",
-    payment_card_number: CARD_NUMBER,
+    payment_card_number: MASTER_CARD_NUMBER,
   };
 }

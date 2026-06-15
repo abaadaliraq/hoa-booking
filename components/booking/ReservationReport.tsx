@@ -15,6 +15,66 @@ function row(label: string, value?: string) {
 
 const ReservationReport = forwardRef<HTMLDivElement, { data: BookingFormData }>(
   function ReservationReport({ data }, ref) {
+    const isVisit = data.event_type === "زيارة";
+    const isPhotography = data.event_type === "جلسة تصوير";
+
+    if (isVisit) {
+      return (
+        <div ref={ref} className={styles.reportCard}>
+          <div className={styles.reportHeader}>
+            <p>بيت التحفيات</p>
+            <h2>تقرير الحجز</h2>
+            <span>{data.booking_id}</span>
+          </div>
+
+          <div className={styles.reportSection}>
+            {row("رقم الحجز", data.booking_id)}
+            {row("نوع الحجز", data.event_type)}
+            {row("عدد الأشخاص", data.people_count)}
+            {row("تاريخ الزيارة", data.booking_date)}
+            {row("ساعة الزيارة", data.start_time_ar || data.start_time)}
+            {row("هل يوجد أطفال", data.has_kids)}
+            {row("الاسم", data.full_name)}
+            {row("الهاتف", data.phone)}
+            {row("سعر الشخص", `${data.payment_per_person}$`)}
+            {row("المجموع", `${data.payment_total}$`)}
+            {row("طريقة الدفع", data.payment_method)}
+            {data.payment_method === "ماستر كارد" &&
+              row("رقم بطاقة التحويل", data.payment_card_number)}
+          </div>
+        </div>
+      );
+    }
+
+    if (isPhotography) {
+      return (
+        <div ref={ref} className={styles.reportCard}>
+          <div className={styles.reportHeader}>
+            <p>بيت التحفيات</p>
+            <h2>تقرير الحجز</h2>
+            <span>{data.booking_id}</span>
+          </div>
+
+          <div className={styles.reportSection}>
+            {row("رقم الحجز", data.booking_id)}
+            {row("نوع الحجز", data.event_type)}
+            {row("عدد الأشخاص", data.people_count)}
+            {row("تاريخ التصوير", data.booking_date)}
+            {row("نوع التصوير", data.photography_type)}
+            {row("تفاصيل نوع التصوير", data.photography_other)}
+            {row("عدد ساعات التصوير", data.photography_hours)}
+            {row("سعر الساعة", `${data.photography_price_per_hour || data.payment_per_person}$`)}
+            {row("المجموع", `${data.payment_total}$`)}
+            {row("الاسم", data.full_name)}
+            {row("الهاتف", data.phone)}
+            {row("طريقة الدفع", data.payment_method)}
+            {data.payment_method === "ماستر كارد" &&
+              row("رقم بطاقة التحويل", data.payment_card_number)}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div ref={ref} className={styles.reportCard}>
         <div className={styles.reportHeader}>
@@ -38,7 +98,6 @@ const ReservationReport = forwardRef<HTMLDivElement, { data: BookingFormData }>(
           {row("الاسم", data.full_name)}
           {row("تاريخ الولادة", data.birthdate)}
           {row("الهاتف", data.phone)}
-          {row("الإيميل", data.customer_email)}
           {row("يوجد أطفال؟", data.has_kids)}
           {row("عمر أصغر طفل", data.youngest_kid_age)}
         </div>
@@ -70,11 +129,11 @@ const ReservationReport = forwardRef<HTMLDivElement, { data: BookingFormData }>(
 
         <div className={styles.reportSection}>
           <h3>الدفع</h3>
-          {row("الدفع مطلوب", data.payment_required)}
           {row("طريقة الدفع", data.payment_method)}
           {row("سعر الشخص", data.payment_per_person)}
           {row("الإجمالي", data.payment_total)}
-          {row("رقم البطاقة", data.payment_card_number)}
+          {data.payment_method === "ماستر كارد" &&
+            row("رقم بطاقة التحويل", data.payment_card_number)}
           {row("مرجع الدفع", data.payment_ref)}
           {row("ملاحظة الدفع", data.payment_notice)}
         </div>

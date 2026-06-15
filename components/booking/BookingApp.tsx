@@ -13,6 +13,7 @@ import {
   nowText,
   timeToArabic,
 } from "./bookingUtils";
+import { MASTER_CARD_NUMBER, PHOTOGRAPHY_PRICE_PER_HOUR } from "./bookingData";
 
 import BookingBanner from "./BookingBanner";
 import BookingTypeSelector from "./BookingTypeSelector";
@@ -23,7 +24,6 @@ import ReservationReport from "./ReservationReport";
 import ReportActions from "./ReportActions";
 
 import VisitFields from "./fields/VisitFields";
-import RestaurantFields from "./fields/RestaurantFields";
 import PhotographyFields from "./fields/PhotographyFields";
 import OccasionFields from "./fields/OccasionFields";
 import WorkshopFields from "./fields/WorkshopFields";
@@ -44,7 +44,6 @@ const emptyData: BookingFormData = {
   full_name: "",
   birthdate: "",
   phone: "",
-  customer_email: "",
 
   has_kids: "",
   youngest_kid_age: "",
@@ -105,6 +104,11 @@ const isSoon =
   bookingType === "restaurant" ||
   bookingType === "auction" ||
   bookingType === "exhibition";
+
+  const isVisit = bookingType === "visit";
+  const isPhotography = bookingType === "photography";
+  const needsTimeRange = !isVisit && !isPhotography;
+
   function update(name: keyof BookingFormData, value: string) {
     setData((prev) => {
       const next: BookingFormData = {
@@ -126,10 +130,7 @@ const isSoon =
       if (name === "start_time" || name === "end_time") {
         next.start_time_ar = timeToArabic(next.start_time);
         next.end_time_ar = timeToArabic(next.end_time);
-        next.duration_hours = calculateDuration(
-          next.start_time,
-          next.end_time
-        );
+        next.duration_hours = calculateDuration(next.start_time, next.end_time);
       }
 
       return next;
@@ -147,17 +148,109 @@ const isSoon =
 
       event_type: getEventTypeName(bookingType),
 
-      start_time_ar: timeToArabic(data.start_time),
-      end_time_ar: timeToArabic(data.end_time),
-      duration_hours: calculateDuration(data.start_time, data.end_time),
+      start_time: isPhotography ? "" : data.start_time,
+      start_time_ar: isPhotography ? "" : timeToArabic(data.start_time),
+      end_time: isVisit || isPhotography ? "" : data.end_time,
+      end_time_ar: isVisit || isPhotography ? "" : timeToArabic(data.end_time),
+      duration_hours: isPhotography
+        ? data.photography_hours
+        : isVisit
+          ? ""
+          : calculateDuration(data.start_time, data.end_time),
 
       payment_required: payment.payment_required,
       payment_per_person: payment.payment_per_person,
       payment_total: payment.payment_total,
-      payment_card_number: payment.payment_card_number,
+      payment_card_number:
+        data.payment_method === "ماستر كارد" ? MASTER_CARD_NUMBER : "-",
+      photography_price_per_hour:
+        bookingType === "photography" ? `${PHOTOGRAPHY_PRICE_PER_HOUR}` : data.photography_price_per_hour,
     };
 
     return finalData;
+  }
+
+  function valueOrFallback(value: string | number | undefined | null) {
+    const normalized = String(value ?? "").trim();
+    return normalized || "-";
+  }
+
+  function buildBookingSummary(finalData: BookingFormData) {
+    return [
+      `رقم الحجز: ${valueOrFallback(finalData.booking_id)}`,
+      `نوع الحجز: ${valueOrFallback(finalData.event_type)}`,
+      `عدد الأشخاص: ${valueOrFallback(finalData.people_count)}`,
+      `الاسم الكامل: ${valueOrFallback(finalData.full_name)}`,
+      `رقم الهاتف: ${valueOrFallback(finalData.phone)}`,
+      `تاريخ الحجز: ${valueOrFallback(finalData.booking_date)}`,
+      `ساعة الزيارة: ${valueOrFallback(finalData.start_time_ar || finalData.start_time)}`,
+      `هل يوجد أطفال: ${valueOrFallback(finalData.has_kids)}`,
+      `نوع التصوير: ${valueOrFallback(finalData.photography_type)}`,
+      `تفاصيل نوع التصوير: ${valueOrFallback(finalData.photography_other)}`,
+      `عدد ساعات التصوير: ${valueOrFallback(finalData.photography_hours)}`,
+      `سعر ساعة التصوير: ${valueOrFallback(finalData.photography_price_per_hour)}`,
+      `سعر الشخص: ${valueOrFallback(finalData.payment_per_person)}`,
+      `المجموع: ${valueOrFallback(finalData.payment_total)}`,
+      `طريقة الدفع: ${valueOrFallback(finalData.payment_method)}`,
+      `رقم بطاقة التحويل: ${valueOrFallback(finalData.payment_card_number)}`,
+      `ملاحظات: ${valueOrFallback(finalData.notes)}`,
+    ].join("\n");
+  }
+
+  function buildTemplateParams(finalData: BookingFormData) {
+    const summary = buildBookingSummary(finalData);
+
+    return {
+      booking_id: valueOrFallback(finalData.booking_id),
+      created_at: valueOrFallback(finalData.created_at),
+      event_type: valueOrFallback(finalData.event_type),
+      people_count: valueOrFallback(finalData.people_count),
+      booking_date: valueOrFallback(finalData.booking_date),
+      start_time: valueOrFallback(finalData.start_time),
+      visit_time: valueOrFallback(finalData.start_time),
+      start_time_ar: valueOrFallback(finalData.start_time_ar),
+      visit_time_ar: valueOrFallback(finalData.start_time_ar),
+      end_time: valueOrFallback(finalData.end_time),
+      end_time_ar: valueOrFallback(finalData.end_time_ar),
+      duration_hours: valueOrFallback(finalData.duration_hours),
+      full_name: valueOrFallback(finalData.full_name),
+      birthdate: valueOrFallback(finalData.birthdate),
+      phone: valueOrFallback(finalData.phone),
+      has_kids: valueOrFallback(finalData.has_kids),
+      youngest_kid_age: valueOrFallback(finalData.youngest_kid_age),
+      photography_type: valueOrFallback(finalData.photography_type),
+      photography_other: valueOrFallback(finalData.photography_other),
+      photography_hours: valueOrFallback(finalData.photography_hours),
+      photography_price_per_hour: valueOrFallback(finalData.photography_price_per_hour),
+      payment_required: valueOrFallback(finalData.payment_required),
+      payment_method: valueOrFallback(finalData.payment_method),
+      payment_per_person: valueOrFallback(finalData.payment_per_person),
+      payment_total: valueOrFallback(finalData.payment_total),
+      payment_card_number: valueOrFallback(finalData.payment_card_number),
+      payment_ref: valueOrFallback(finalData.payment_ref),
+      payment_notice: valueOrFallback(finalData.payment_notice),
+      occasion_type: valueOrFallback(finalData.occasion_type),
+      occasion_other: valueOrFallback(finalData.occasion_other),
+      decor_provider: valueOrFallback(finalData.decor_provider),
+      food_from_hoa: valueOrFallback(finalData.food_from_hoa),
+      has_band: valueOrFallback(finalData.has_band),
+      band_details: valueOrFallback(finalData.band_details),
+      group_type: valueOrFallback(finalData.group_type),
+      is_foreign: valueOrFallback(finalData.is_foreign),
+      country: valueOrFallback(finalData.country),
+      province: valueOrFallback(finalData.province),
+      interests: valueOrFallback(finalData.interests),
+      restaurant_area: valueOrFallback(finalData.restaurant_area),
+      restaurant_booking_type: valueOrFallback(finalData.restaurant_booking_type),
+      food_notes: valueOrFallback(finalData.food_notes),
+      workshop_topic: valueOrFallback(finalData.workshop_topic),
+      organizer_name: valueOrFallback(finalData.organizer_name),
+      needs_projector: valueOrFallback(finalData.needs_projector),
+      needs_microphone: valueOrFallback(finalData.needs_microphone),
+      notes: valueOrFallback(finalData.notes),
+      message: summary,
+      summary,
+    };
   }
 
   function validateBeforeSubmit() {
@@ -166,19 +259,67 @@ const isSoon =
     }
 
     if (!data.people_count || Number(data.people_count) < 1) {
-      return "اكتبي عدد الأشخاص بشكل صحيح.";
+      return "أدخل عدد الأشخاص بشكل صحيح.";
+    }
+
+    if (isVisit) {
+      if (!data.booking_date) {
+        return "حدد تاريخ الزيارة.";
+      }
+
+      if (!data.start_time) {
+        return "حدد ساعة الزيارة.";
+      }
+
+      if (!data.has_kids) {
+        return "حدد هل يوجد أطفال.";
+      }
+
+      if (!data.full_name.trim()) {
+        return "أدخل الاسم الكامل.";
+      }
+
+      if (!data.phone.trim()) {
+        return "أدخل رقم الهاتف.";
+      }
+
+      return "";
+    }
+
+    if (isPhotography) {
+      if (!data.booking_date) {
+        return "حدد تاريخ التصوير.";
+      }
+
+      if (!data.photography_hours || Number(data.photography_hours) < 1) {
+        return "أدخل عدد ساعات التصوير.";
+      }
+
+      if (!data.photography_type) {
+        return "اختر نوع التصوير.";
+      }
+
+      if (!data.full_name.trim()) {
+        return "أدخل الاسم الكامل.";
+      }
+
+      if (!data.phone.trim()) {
+        return "أدخل رقم الهاتف.";
+      }
+
+      return "";
     }
 
     if (!data.booking_date) {
-      return "اختاري تاريخ الحجز.";
+      return "حدد تاريخ الحجز.";
     }
 
     if (!data.start_time) {
-      return "اختاري وقت البداية.";
+      return "حدد وقت البداية.";
     }
 
     if (!data.end_time) {
-      return "اختاري وقت النهاية.";
+      return "حدد وقت النهاية.";
     }
 
     if (!calculateDuration(data.start_time, data.end_time)) {
@@ -186,15 +327,11 @@ const isSoon =
     }
 
     if (!data.full_name.trim()) {
-      return "اكتبي الاسم الكامل.";
+      return "أدخل الاسم الكامل.";
     }
 
     if (!data.phone.trim()) {
-      return "اكتبي رقم الهاتف.";
-    }
-
-    if (!data.customer_email.trim()) {
-      return "اكتبي الإيميل.";
+      return "أدخل رقم الهاتف.";
     }
 
     return "";
@@ -232,23 +369,25 @@ const isSoon =
 
     if (!serviceId || !templateId || !publicKey) {
       setStatus(
-        "إعدادات EmailJS ناقصة. تأكدي من أسماء المتغيرات داخل .env.local و Vercel."
+        "إعدادات EmailJS ناقصة. يجب التأكد من أسماء المتغيرات داخل .env.local و Vercel."
       );
       return;
     }
 
     try {
       setSending(true);
-      setStatus("");
+      setStatus("جاري إرسال طلب الحجز...");
 
-      await emailjs.send(serviceId, templateId, finalData, {
+      const templateParams = buildTemplateParams(finalData);
+
+      await emailjs.send(serviceId, templateId, templateParams, {
         publicKey,
       });
 
       setStatus("تم إرسال طلب الحجز بنجاح.");
     } catch (error) {
-      console.error(error);
-      setStatus("فشل إرسال الحجز. راجعي Template ID و Public Key داخل EmailJS.");
+      console.error("EmailJS booking send failed:", error);
+      setStatus("فشل إرسال الحجز. يرجى التأكد من إعدادات EmailJS أو المحاولة مرة ثانية، وتم تسجيل سبب الخطأ في Console.");
     } finally {
       setSending(false);
     }
@@ -313,7 +452,12 @@ const isSoon =
 
                   <label className={styles.field}>
                     <span>
-                      التاريخ / <small>Date</small>
+                      {isVisit
+                        ? "تاريخ الزيارة"
+                        : isPhotography
+                          ? "تاريخ التصوير"
+                          : "التاريخ"}{" "}
+                      / <small>Date</small>
                     </span>
 
                     <input
@@ -324,34 +468,53 @@ const isSoon =
                     />
                   </label>
 
-                  <label className={styles.field}>
-                    <span>
-                      وقت البداية / <small>Start Time</small>
-                    </span>
+                  {isVisit && (
+                    <label className={styles.field}>
+                      <span>
+                        ساعة الزيارة / <small>Visit Time</small>
+                      </span>
 
-                    <input
-                      type="time"
-                      value={data.start_time}
-                      onChange={(e) => update("start_time", e.target.value)}
-                      required
-                    />
-                  </label>
+                      <input
+                        type="time"
+                        value={data.start_time}
+                        onChange={(e) => update("start_time", e.target.value)}
+                        required
+                      />
+                    </label>
+                  )}
 
-                  <label className={styles.field}>
-                    <span>
-                      وقت النهاية / <small>End Time</small>
-                    </span>
+                  {needsTimeRange && (
+                    <>
+                      <label className={styles.field}>
+                        <span>
+                          وقت البداية / <small>Start Time</small>
+                        </span>
 
-                    <input
-                      type="time"
-                      value={data.end_time}
-                      onChange={(e) => update("end_time", e.target.value)}
-                      required
-                    />
-                  </label>
+                        <input
+                          type="time"
+                          value={data.start_time}
+                          onChange={(e) => update("start_time", e.target.value)}
+                          required
+                        />
+                      </label>
+
+                      <label className={styles.field}>
+                        <span>
+                          وقت النهاية / <small>End Time</small>
+                        </span>
+
+                        <input
+                          type="time"
+                          value={data.end_time}
+                          onChange={(e) => update("end_time", e.target.value)}
+                          required
+                        />
+                      </label>
+                    </>
+                  )}
                 </div>
 
-                {data.start_time && data.end_time && !data.duration_hours && (
+                {needsTimeRange && data.start_time && data.end_time && !data.duration_hours && (
                   <p className={styles.warning}>
                     وقت النهاية لازم يكون بعد وقت البداية.
                   </p>
@@ -373,18 +536,18 @@ const isSoon =
                   <WorkshopFields data={data} update={update} />
                 )}
 
-                {peopleCount >= 4 && (
+                {!isVisit && peopleCount >= 4 && (
                   <GroupFields data={data} update={update} />
                 )}
 
-                <CustomerFields data={data} update={update} />
+                <CustomerFields data={data} update={update} basicOnly={isVisit} />
 
-                {(bookingType === "visit" ||
-                  bookingType === "photography") && (
+                {(bookingType === "visit" || bookingType === "photography") && (
                   <PaymentFields
                     data={data}
                     update={update}
                     payment={payment}
+                    priceLabel={bookingType === "photography" ? "سعر الساعة" : "سعر الشخص"}
                   />
                 )}
 
@@ -412,7 +575,7 @@ const isSoon =
             ) : (
               <div className={styles.emptyReport}>
                 <span>ملخص الحجز</span>
-                <p>املئي الحقول واضغطي عرض الملخص.</p>
+                <p>أدخل بيانات الحجز ثم اضغط عرض الملخص.</p>
               </div>
             )}
           </aside>

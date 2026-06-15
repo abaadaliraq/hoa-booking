@@ -23,7 +23,6 @@ export type BookingFormData = {
   full_name: string;
   birthdate: string;
   phone: string;
-  customer_email: string;
 
   has_kids: string;
   youngest_kid_age: string;
