@@ -13,7 +13,11 @@ import {
   nowText,
   timeToArabic,
 } from "./bookingUtils";
-import { MASTER_CARD_NUMBER, PHOTOGRAPHY_PRICE_PER_HOUR } from "./bookingData";
+import {
+  MASTER_CARD_NUMBER,
+  PHOTOGRAPHY_PRICE_PER_HOUR,
+  WHATSAPP_BOOKING_PHONE,
+} from "./bookingData";
 
 import BookingBanner from "./BookingBanner";
 import BookingTypeSelector from "./BookingTypeSelector";
@@ -253,6 +257,36 @@ const isSoon =
     };
   }
 
+  function buildWhatsAppBookingMessage(finalData: BookingFormData) {
+    return [
+      "حجز جديد - بيت التحفيات",
+      "",
+      `رقم الحجز: ${valueOrFallback(finalData.booking_id)}`,
+      `نوع الحجز: ${valueOrFallback(finalData.event_type)}`,
+      `عدد الأشخاص: ${valueOrFallback(finalData.people_count)}`,
+      `تاريخ الزيارة: ${valueOrFallback(finalData.booking_date)}`,
+      `وقت الزيارة: ${valueOrFallback(finalData.start_time_ar || finalData.start_time)}`,
+      `هل يوجد أطفال: ${valueOrFallback(finalData.has_kids)}`,
+      `الاسم الكامل: ${valueOrFallback(finalData.full_name)}`,
+      `رقم الهاتف: ${valueOrFallback(finalData.phone)}`,
+      `سعر الشخص: ${valueOrFallback(finalData.payment_per_person)}`,
+      `المجموع: ${valueOrFallback(finalData.payment_total)}`,
+      `طريقة الدفع: ${valueOrFallback(finalData.payment_method)}`,
+      `رقم بطاقة الماستر كارد للتحويل: ${valueOrFallback(finalData.payment_card_number)}`,
+      `تاريخ ووقت إنشاء الطلب: ${valueOrFallback(finalData.created_at)}`,
+    ].join("\n");
+  }
+
+  function openWhatsAppBookingMessage(finalData: BookingFormData) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const message = buildWhatsAppBookingMessage(finalData);
+    const whatsappUrl = `https://wa.me/${WHATSAPP_BOOKING_PHONE}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  }
+
   function validateBeforeSubmit() {
     if (isSoon) {
       return "هذا النوع من الحجز سيتوفر قريبًا.";
@@ -383,6 +417,9 @@ const isSoon =
       await emailjs.send(serviceId, templateId, templateParams, {
         publicKey,
       });
+
+      console.log("Email sent successfully, opening WhatsApp booking message");
+      openWhatsAppBookingMessage(finalData);
 
       setStatus("تم إرسال طلب الحجز بنجاح.");
     } catch (error) {
