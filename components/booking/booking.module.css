@@ -606,24 +606,6 @@
 .exhibitionSection p {
   margin: 8px 0 16px;
 }
-.exhibitionTicket {
-  border-top: 1px solid rgba(90, 20, 20, 0.14);
-  padding: 18px 0;
-}
-.exhibitionTicket dl {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 8px 16px;
-}
-.exhibitionTicket dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-.exhibitionTicket img {
-  display: block;
-  max-width: 100%;
-  margin: 16px auto;
-}
 .honeypot {
   position: absolute;
   clip-path: inset(50%);
@@ -633,26 +615,71 @@
   height: 1px;
   overflow: hidden;
 }
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .exhibitionTicket,
-  .exhibitionTicket * {
-    visibility: visible;
-  }
-  .exhibitionTicket {
-    position: absolute;
-    inset: 0;
-    background: white;
-    padding: 20px;
-  }
-  .exhibitionTicket button,
-  .exhibitionTicket a,
-  .exhibitionTicket small {
-    display: none;
-  }
-}
-
 .exhibitionOnly { grid-template-columns: minmax(0, 1fr); }
 .exhibitionHours { margin: 0 0 20px; color: #6d4d42; font-size: 14px; line-height: 1.8; }
+
+.ticketSection { margin: 0; padding: 0; border: 0; }
+.ticketResult { max-width: 860px; margin: 0 auto; }
+.exhibitionTicket {
+  color: #342725;
+  background: #fffcf5;
+  border: 1px solid #d9c9ad;
+  border-top: 4px solid #59151d;
+  box-shadow: 0 12px 40px #4b0f120a;
+  font-family: Tahoma, Arial, sans-serif;
+  scroll-margin-top: 24px;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+.ticketHeader { text-align: center; padding: 28px 24px 22px; }
+.ticketEyebrow { display: block; font: 11px/1.5 Arial, sans-serif; letter-spacing: .24em; color: #745d48; }
+.ticketOrnament { display: block; color: #b08c52; font-size: 23px; line-height: 1; margin: 14px auto; }
+.ticketStatus { display: inline-flex; align-items: center; gap: 7px; color: #536b48; font-size: 12px; }
+.ticketStatus svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.exhibitionTicket h2 { font-size: clamp(22px, 4vw, 30px); font-weight: 400; line-height: 1.6; color: #59151d; margin: 8px 0 4px; }
+.ticketHeader p { margin: 0 0 3px; font-size: 15px; }
+.ticketVenue { font-size: 11px; color: #806d61; }
+.ticketBody { display: grid; grid-template-columns: minmax(0, 1fr) 280px; border-top: 1px solid #e7ddcc; }
+.ticketDetails { padding: 26px 30px; min-width: 0; }
+.ticketGuest > span, .ticketReference > span, .ticketFacts dt { display: block; font-size: 11px; font-weight: 400; color: #806d61; }
+.exhibitionTicket .ticketGuest h3 { color: #59151d; font-size: 21px; font-weight: 400; line-height: 1.7; margin: 4px 0 20px; }
+.ticketFacts { display: grid; gap: 14px; margin: 0; }
+.ticketFacts div { display: grid; gap: 3px; }
+.ticketFacts dd { margin: 0; font-size: 14px; line-height: 1.6; }
+.ticketReference { margin-top: 22px; padding-top: 14px; border-top: 1px solid #e7ddcc; }
+.ticketReference bdi { display: block; font: 14px/1.9 Arial, sans-serif; letter-spacing: .04em; margin-top: 2px; }
+.ticketQr { border-right: 1px dashed #d9c9ad; padding: 28px 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.ticketQrFrame { padding: 8px; background: white; border: 1px solid #e7ddcc; width: 216px; max-width: 100%; }
+.ticketQr img { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.ticketQr strong { font-size: 12px; font-weight: 400; color: #59151d; margin-top: 14px; }
+.ticketQr p { font-size: 11px; color: #806d61; line-height: 1.9; margin: 5px 0 0; }
+.ticketFooter { border-top: 1px solid #e7ddcc; padding: 14px 24px; display: flex; justify-content: space-between; gap: 12px; color: #806d61; font-size: 10px; }
+.ticketFooter span[lang="en"] { font-family: Arial, sans-serif; letter-spacing: .16em; }
+.exhibitionSection .ticketNotification { text-align: center; font-size: 12px; color: #806d61; margin: 18px 0 12px; }
+.ticketActions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.ticketActions button, .ticketActions a { display: inline-flex; align-items: center; justify-content: center; border: 1px solid #d9c9ad; color: #59151d; background: transparent; border-radius: 3px; text-decoration: none; cursor: pointer; min-height: 44px; padding: 10px 18px; font: 13px/1.6 Tahoma, Arial, sans-serif; }
+.ticketActions button:first-child { background: #59151d; border-color: #59151d; color: #fffaf2; }
+.ticketActions button:disabled { opacity: .55; cursor: wait; }
+.ticketActions button:focus-visible, .ticketActions a:focus-visible, .ticketNewBooking:focus-visible { outline: 2px solid #b08c52; outline-offset: 3px; }
+.ticketNewBooking { display: block; margin: 18px auto 8px; border: 0; padding: 8px 12px; background: transparent; color: #806d61; text-decoration: underline; text-underline-offset: 4px; font-size: 12px; cursor: pointer; }
+.ticketShareHint { display: block; text-align: center; color: #806d61; font-size: 10px; }
+@media (max-width: 600px) {
+  .ticketHeader { padding: 22px 16px 18px; }
+  .ticketBody { display: flex; flex-direction: column; }
+  .ticketDetails { padding: 20px; }
+  .ticketFacts { grid-template-columns: 1fr 1fr; gap: 14px 12px; }
+  .ticketReference { margin-top: 16px; }
+  .ticketQr { border-right: 0; border-top: 1px dashed #d9c9ad; padding: 22px 20px; }
+  .ticketQrFrame { width: 208px; }
+  .ticketFooter { padding: 12px 16px; font-size: 9px; }
+  .ticketActions { display: grid; grid-template-columns: 1fr; }
+}
+@media print {
+  .page { padding: 0; background: white; }
+  .shell, .formPanel { border: 0; padding: 0; box-shadow: none; background: white; }
+  .header, .ticketNotification, .ticketActions, .ticketNewBooking, .ticketShareHint { display: none; }
+  .exhibitionTicket, .exhibitionTicket * { visibility: visible; }
+  .exhibitionTicket { position: absolute; inset: 0 auto auto 0; width: 100%; padding: 0; box-shadow: none; break-inside: avoid; print-color-adjust: exact; }
+  .ticketBody { display: grid; grid-template-columns: minmax(0, 1fr) 260px; }
+  .ticketQr { border-top: 0; border-right: 1px dashed #d9c9ad; }
+}

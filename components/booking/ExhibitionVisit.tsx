@@ -1,32 +1,21 @@
 "use client";
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { normalizePhone, type Slot } from "../../lib/exhibition/domain";
+import { type Slot } from "../../lib/exhibition/domain";
+import { bookingFormInput } from "../../lib/exhibition/form";
+import ExhibitionTicket, { type ExhibitionTicketData as Ticket } from "./ExhibitionTicket";
 import { visitTimeChoices, timeWindowLabel } from "../../lib/exhibition/schedule";
 import { WHATSAPP_BOOKING_PHONE } from "./bookingData";
 import styles from "./booking.module.css";
-type Ticket = {
-  booking: {
-    id: string;
-    booking_reference: string;
-    full_name: string;
-    visit_date: string;
-    start_time: string;
-    end_time: string;
-    guest_count: number;
-    status: string;
-  };
-  qr: string | null;
-  notification_status: string;
-};
 export default function ExhibitionVisit({
   date,
   count,
   onLock,
+  onTicket,
 }: {
   date: string;
   count: string;
   onLock: (locked: boolean) => void;
+  onTicket: (shown: boolean) => void;
 }) {
   const [slots, setSlots] = useState<Slot[]>([]),
     [slot, setSlot] = useState(""),
@@ -45,6 +34,14 @@ export default function ExhibitionVisit({
     payload: Record<string, unknown>;
   } | null>(null);
   const honeypot = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (ticket) {
+      const receipt = document.getElementById("exhibition-ticket");
+      receipt?.focus({ preventScroll: true });
+      receipt?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [ticket]);
   function persist(value: unknown) {
     try {
       if (value)
@@ -115,31 +112,24 @@ export default function ExhibitionVisit({
       return;
     }
     if (!retry) {
-      if (
-        name.trim().length < 2 ||
-        name.length > 160 ||
-        !normalizePhone(phone) ||
-        !slot ||
-        !Number.isInteger(Number(count)) ||
-        Number(count) < 1 ||
-        Number(count) > 60 ||
-        (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      ) {
-        setError(
-          "أكمل الاسم والهاتف العراقي والموعد وعدد الأشخاص والبريد إن وجد.",
-        );
+      if (!formRef.current) return;
+      const values = new FormData(formRef.current);
+      // Synchronize visible autofill values before any validation rerender.
+      setName(String(values.get("full_name") ?? ""));
+      setPhone(String(values.get("phone") ?? ""));
+      setEmail(String(values.get("email") ?? ""));
+      setNotes(String(values.get("notes") ?? ""));
+      let input;
+      try {
+        input = bookingFormInput(values, date, count);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "يرجى التحقق من بيانات الحجز.");
         return;
       }
       pending.current = {
         key: crypto.randomUUID(),
         payload: {
-          full_name: name.trim(),
-          phone,
-          email: email.trim(),
-          notes: notes.trim(),
-          visit_date: date,
-          slot_id: slot,
-          guest_count: Number(count),
+          ...input,
           website: honeypot.current?.value || "",
         },
       };
@@ -174,6 +164,7 @@ export default function ExhibitionVisit({
       if (!data.booking?.booking_reference)
         throw Error("تعذر التحقق من تأكيد الحفظ.");
       setTicket(data);
+      onTicket(true);
       if (data.booking.status !== "confirmed")
         setError("هذا الحجز ملغى. راجع بيت التحفيات.");
     } catch (e) {
@@ -192,9 +183,10 @@ export default function ExhibitionVisit({
   return (
     <section
       dir="rtl"
-      className={styles.exhibitionSection}
+      className={`${styles.exhibitionSection} ${ticket ? styles.ticketSection : ""}`}
       aria-label="حجز زيارة المعرض"
     >
+      {!ticket && <>
       <h3>زيارة معرض نعيمة وذاكرة بغداد</h3>
       <p>
         يسرّ بيت التحفيات استقبال زواره خلال أيام المعرض الفني. اختر موعد زيارتك وأكمل بيانات الحجز.
@@ -202,51 +194,20 @@ export default function ExhibitionVisit({
       <p>
         <strong>يرجى الحجز المسبق وإبراز رمز الحجز عند الوصول.</strong>
       </p>
+      </>}
       {ticket ? (
-        <div className={styles.exhibitionTicket} id="exhibition-ticket">
-          <h3>
-            {ticket.booking.status === "confirmed"
-              ? "تم تأكيد حجز زيارتكم"
-              : "الحجز ملغى"}
-          </h3>
-          <p>معرض نعيمة وذاكرة بغداد · بيت التحفيات — بغداد</p>
-          <dl>
-            <dt>الاسم</dt>
-            <dd>{ticket.booking.full_name}</dd>
-            <dt>تاريخ الزيارة</dt>
-            <dd>{ticket.booking.visit_date}</dd>
-            <dt>الوقت — بغداد</dt>
-            <dd>
-              {timeWindowLabel(ticket.booking.start_time, ticket.booking.end_time)}
-            </dd>
-            <dt>عدد الأشخاص</dt>
-            <dd>{ticket.booking.guest_count}</dd>
-            <dt>رقم الحجز</dt>
-            <dd dir="ltr">{ticket.booking.booking_reference}</dd>
-          </dl>
-          {ticket.qr && (
-            <Image
-              unoptimized
-              src={ticket.qr}
-              width="256"
-              height="256"
-              alt="رمز الحجز للتحقق عند الوصول"
-            />
-          )}
-          <p>
-            يرجى الاحتفاظ برمز الحجز وإبرازه عند الوصول إلى بيت التحفيات. الدخول
-            متاح للحجوزات المؤكدة فقط.
-          </p>
-          <p role="status">
+        <div className={styles.ticketResult}>
+          <ExhibitionTicket ticket={ticket} />
+          <p role="status" className={styles.ticketNotification}>
             {ticket.notification_status === "sent"
               ? "تم إرسال إشعار البريد."
               : ticket.notification_status === "sending"
                 ? "الحجز محفوظ، إشعار البريد قيد المعالجة."
                 : "الحجز محفوظ. إشعار البريد لم يُؤكّد؛ يمكنك إعادة المحاولة بعد دقيقة دون إنشاء حجز آخر."}
           </p>
-          <div className={styles.actions}>
+          <div className={styles.ticketActions}>
             <button type="button" onClick={() => window.print()}>
-              حفظ / طباعة التذكرة
+              حفظ التذكرة / طباعة
             </button>
             {ticket.notification_status !== "sent" && (
               <button
@@ -276,14 +237,16 @@ export default function ExhibitionVisit({
                 )
               }
             >
-              فتح WhatsApp لإرسال التفاصيل
+              مشاركة التفاصيل عبر واتساب
             </a>
           </div>
           <button
             type="button"
             disabled={busy}
+            className={styles.ticketNewBooking}
             onClick={() => {
               setTicket(null);
+              onTicket(false);
               pending.current = null;
               persist(null);
               setHasPending(false);
@@ -293,18 +256,19 @@ export default function ExhibitionVisit({
           >
             بدء حجز جديد
           </button>
-          <small>
+          <small className={styles.ticketShareHint}>
             يفتح الرابط WhatsApp؛ اضغط إرسال داخل التطبيق لإرسال الرسالة.
           </small>
         </div>
       ) : (
-        <>
+        <form ref={formRef} noValidate onSubmit={e => { e.preventDefault(); void submit(); }}>
           <div className={styles.twoCols}>
             <label className={styles.field}>
               <span>الاسم الكامل</span>
               <input
+                name="full_name"
                 maxLength={160}
-                value={name}
+                defaultValue={name}
                 onChange={(e) => setName(e.target.value)}
                 autoComplete="name"
               />
@@ -312,10 +276,11 @@ export default function ExhibitionVisit({
             <label className={styles.field}>
               <span>الهاتف العراقي</span>
               <input
+                name="phone"
                 type="tel"
                 dir="ltr"
                 placeholder="07xxxxxxxxx"
-                value={phone}
+                defaultValue={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 autoComplete="tel"
                 maxLength={24}
@@ -324,9 +289,10 @@ export default function ExhibitionVisit({
             <label className={styles.field}>
               <span>البريد الإلكتروني — اختياري</span>
               <input
+                name="email"
                 type="email"
                 dir="ltr"
-                value={email}
+                defaultValue={email}
                 maxLength={254}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -335,6 +301,7 @@ export default function ExhibitionVisit({
             <label className={styles.field}>
               <span>وقت الزيارة — بغداد</span>
               <select
+                name="slot_id"
                 value={slot}
                 onChange={(e) => setSlot(e.target.value)}
                 disabled={loading || busy || hasPending}
@@ -352,8 +319,9 @@ export default function ExhibitionVisit({
             <label className={styles.fieldWide}>
               <span>ملاحظات — اختياري</span>
               <textarea
+                name="notes"
                 maxLength={500}
-                value={notes}
+                defaultValue={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
             </label>
@@ -377,9 +345,8 @@ export default function ExhibitionVisit({
           </p>
           <div className={styles.actions}>
             <button
-              type="button"
+              type="submit"
               disabled={busy || loading || !selected || selected.remaining < Number(count) || Number(count) < 1 || Number(count) > 60 || !!slotsError || hasPending}
-              onClick={() => void submit()}
             >
               {" "}
               {busy ? "جارٍ التحقق والحفظ…" : "تأكيد الحجز"}
@@ -397,7 +364,7 @@ export default function ExhibitionVisit({
               </button>
             )}
           </div>
-        </>
+        </form>
       )}
       {error && (
         <p role="alert" className={styles.warning}>

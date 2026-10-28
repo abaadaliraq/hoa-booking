@@ -8,6 +8,7 @@ export default function BookingApp() {
   const [date, setDate] = useState<string>(exhibitionDates.first);
   const [count, setCount] = useState("1");
   const [locked, setLocked] = useState(false);
+  const [showTicket, setShowTicket] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
@@ -22,9 +23,10 @@ export default function BookingApp() {
   return <main className={styles.page}>
     <section className={styles.shell}>
       <header className={styles.header}><div className={styles.brandTitle}><span>بيت التحفيات</span><small>House of Antiques</small></div></header>
-      <BookingBanner bookingType="exhibition" />
+      {!showTicket && <BookingBanner bookingType="exhibition" />}
       <div className={`${styles.formGrid} ${styles.exhibitionOnly}`}>
         <section className={styles.formPanel} aria-label="حجز المعرض">
+          {!showTicket && <>
           <div className={styles.sectionTitle}>حجز المعرض / Exhibition Booking</div>
           <p className={styles.exhibitionHours}>31 أكتوبر – 9 نوفمبر 2026 · من 5 عصراً إلى 9 مساءً</p>
           <div className={styles.twoCols}>
@@ -35,7 +37,8 @@ export default function BookingApp() {
               <input type="number" min="1" max="60" value={count} disabled={locked} onChange={e => setCount(e.target.value)} required />
             </label>
           </div>
-          <ExhibitionVisit key={date} date={date} count={count} onLock={setLocked} />
+          </>}
+          <ExhibitionVisit date={date} count={count} onLock={setLocked} onTicket={setShowTicket} />
         </section>
       </div>
     </section>
