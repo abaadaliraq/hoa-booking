@@ -30,5 +30,5 @@ export const socialLinks: {
 ];
 
 export const bookingOptions: { id: BookingType; title: string; en: string; soon?: boolean; image: string }[] = [
-  { id: "exhibition", title: "نعيمة وذاكرة بغداد", en: "Naima & the Memory of Baghdad", image: "/images/booking/exhibition.jpg" },
+  { id: "exhibition", title: "نعيمة وذاكرة بغداد", en: "Naima & the Memory of Baghdad", image: "/images/booking/visit.jpg" },
 ];
