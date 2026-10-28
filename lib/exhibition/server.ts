@@ -7,12 +7,19 @@ export const responseHeaders = {
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
 };
+export class BookingServiceError extends Error {
+  constructor(public readonly supportCode: string) {
+    super("Booking service unavailable");
+  }
+}
 export function config() {
   const url = process.env.EXHIBITION_SUPABASE_URL?.trim().replace(/\/$/, ""),
     key = process.env.EXHIBITION_SUPABASE_SERVICE_ROLE_KEY?.trim(),
     secret = process.env.EXHIBITION_BOOKING_SECRET;
-  if (url !== target || !key || !secret || secret.length < 32)
-    throw Error("setup");
+  if (url !== target) throw new BookingServiceError("CONFIG_URL");
+  if (!key) throw new BookingServiceError("CONFIG_KEY");
+  if (!secret || secret.length < 32)
+    throw new BookingServiceError("CONFIG_SIGNING");
   return { url, key, secret };
 }
 export async function rpc<T>(
@@ -31,7 +38,7 @@ export async function rpc<T>(
     body: JSON.stringify(args),
     signal: AbortSignal.timeout(15000),
   });
-  if (!res.ok) throw Error("database");
+  if (!res.ok) throw new BookingServiceError("DATABASE_" + res.status);
   return res.json();
 }
 export function hash(value: string) {
