@@ -8,8 +8,8 @@ export const responseHeaders = {
   "X-Content-Type-Options": "nosniff",
 };
 export function config() {
-  const url = process.env.EXHIBITION_SUPABASE_URL?.replace(/\/$/, ""),
-    key = process.env.EXHIBITION_SUPABASE_SERVICE_ROLE_KEY,
+  const url = process.env.EXHIBITION_SUPABASE_URL?.trim().replace(/\/$/, ""),
+    key = process.env.EXHIBITION_SUPABASE_SERVICE_ROLE_KEY?.trim(),
     secret = process.env.EXHIBITION_BOOKING_SECRET;
   if (url !== target || !key || !secret || secret.length < 32)
     throw Error("setup");
@@ -25,7 +25,7 @@ export async function rpc<T>(
     cache: "no-store",
     headers: {
       apikey: key,
-      Authorization: "Bearer " + key,
+      ...(key.startsWith("sb_secret_") ? {} : { Authorization: "Bearer " + key }),
       "Content-Type": "application/json",
     },
     body: JSON.stringify(args),

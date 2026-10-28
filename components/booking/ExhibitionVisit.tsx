@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { normalizePhone, type Slot } from "../../lib/exhibition/domain";
+import { visitTimeChoices, timeWindowLabel } from "../../lib/exhibition/schedule";
 import { WHATSAPP_BOOKING_PHONE } from "./bookingData";
 import styles from "./booking.module.css";
 type Ticket = {
@@ -30,6 +31,7 @@ export default function ExhibitionVisit({
   const [slots, setSlots] = useState<Slot[]>([]),
     [slot, setSlot] = useState(""),
     [error, setError] = useState(""),
+    [slotsError, setSlotsError] = useState(""),
     [loading, setLoading] = useState(true),
     [name, setName] = useState(""),
     [phone, setPhone] = useState(""),
@@ -87,10 +89,10 @@ export default function ExhibitionVisit({
       if (!response.ok || !Array.isArray(data.slots))
         throw Error(data.error || "تعذر تحميل المواعيد.");
       setSlots(data.slots);
-      setError("");
+      setSlotsError("");
     } catch (e) {
       setSlots([]);
-      setError(e instanceof Error ? e.message : "تعذر تحميل المواعيد.");
+      setSlotsError(e instanceof Error ? e.message : "تعذر تحميل المواعيد.");
     } finally {
       setLoading(false);
     }
@@ -186,6 +188,7 @@ export default function ExhibitionVisit({
   }
   const available = slots.filter((s) => s.visit_date === date),
     selected = available.find((s) => s.id === slot);
+  const timeChoices = visitTimeChoices(slots, date, Number(count));
   return (
     <section
       dir="rtl"
@@ -214,8 +217,7 @@ export default function ExhibitionVisit({
             <dd>{ticket.booking.visit_date}</dd>
             <dt>الوقت — بغداد</dt>
             <dd>
-              {ticket.booking.start_time.slice(0, 5)} –{" "}
-              {ticket.booking.end_time.slice(0, 5)}
+              {timeWindowLabel(ticket.booking.start_time, ticket.booking.end_time)}
             </dd>
             <dt>عدد الأشخاص</dt>
             <dd>{ticket.booking.guest_count}</dd>
@@ -335,15 +337,14 @@ export default function ExhibitionVisit({
               <select
                 value={slot}
                 onChange={(e) => setSlot(e.target.value)}
-                disabled={loading}
+                disabled={loading || busy || hasPending}
               >
                 <option value="">
-                  {loading ? "جارٍ تحميل المواعيد…" : "اختر موعداً متاحاً"}
+                  {loading ? "جارٍ تحميل المواعيد…" : slotsError ? "تعذر تحميل المواعيد" : "اختر وقت الزيارة"}
                 </option>
-                {available.map((s) => (
-                  <option value={s.id} key={s.id}>
-                    {s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)} ·
-                    متبقي {s.remaining}
+                {timeChoices.map(choice => (
+                  <option key={choice.key} value={choice.slot?.id || "unavailable-" + choice.key} disabled={choice.disabled}>
+                    {choice.label}{choice.slot && choice.disabled ? " — لا يتسع للعدد المحدد" : ""}
                   </option>
                 ))}
               </select>
@@ -361,25 +362,23 @@ export default function ExhibitionVisit({
             الموقع
             <input ref={honeypot} tabIndex={-1} autoComplete="off" />
           </label>
-          {!loading && !available.length && (
+          {slotsError && <p role="alert" className={styles.warning}>{slotsError}</p>}
+          {!loading && !slotsError && !available.length && (
             <p>
-              لم تُفتح مواعيد لهذا اليوم. لا يمكن تأكيد حجز دون موعد وسعة
-              محددين.
+              لا توجد مواعيد متاحة لهذا اليوم. اختر يوماً آخر.
             </p>
           )}
           <p>
             ملخص الزيارة: {date} ·{" "}
             {selected
-              ? selected.start_time.slice(0, 5) +
-                " – " +
-                selected.end_time.slice(0, 5)
+              ? timeWindowLabel(selected.start_time, selected.end_time)
               : "اختر الوقت"}{" "}
             · {count} أشخاص
           </p>
           <div className={styles.actions}>
             <button
               type="button"
-              disabled={busy || loading || !slot || hasPending}
+              disabled={busy || loading || !selected || selected.remaining < Number(count) || Number(count) < 1 || Number(count) > 60 || !!slotsError || hasPending}
               onClick={() => void submit()}
             >
               {" "}

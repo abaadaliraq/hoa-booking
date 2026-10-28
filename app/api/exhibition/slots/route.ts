@@ -10,7 +10,7 @@ export async function GET() {
     return Response.json(
       {
         error:
-          "المواعيد غير متاحة حالياً. سيفتح الحجز بعد اعتماد المواعيد والسعة.",
+          "تعذر تحميل مواعيد الزيارة حالياً. أعد المحاولة بعد قليل.",
       },
       { status: 503, headers: responseHeaders },
     );
