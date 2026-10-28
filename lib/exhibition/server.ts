@@ -109,9 +109,9 @@ async function notify(
         start_time: b.start_time,
         visit_time: b.start_time,
         people_count: b.guest_count,
-        payment_per_person: "0 USD",
-        payment_total: "0 USD",
-        payment_method: "مجاني",
+        payment_per_person: "",
+        payment_total: "",
+        payment_method: "",
         notes: input.notes,
         message: [
           b.booking_reference,
@@ -119,7 +119,6 @@ async function notify(
           b.visit_date,
           b.start_time,
           b.guest_count + " أشخاص",
-          "مجاني — الحجز المسبق إلزامي",
         ].join(" — "),
       };
       const result = await fetch(
@@ -209,7 +208,9 @@ export async function createBooking(request: Request) {
       return Response.json(
         {
           error:
-            saved.code === "capacity"
+            saved.code === "daily_capacity"
+              ? "اكتمل عدد الزوار لهذا اليوم. اختر يوماً آخر."
+              : saved.code === "capacity"
               ? "الأماكن المتبقية لا تكفي. اختر موعداً آخر."
               : saved.code === "rate_limit"
                 ? "تجاوزت محاولات الحجز المسموحة. حاول لاحقاً."

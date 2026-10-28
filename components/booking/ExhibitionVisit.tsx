@@ -120,7 +120,7 @@ export default function ExhibitionVisit({
         !slot ||
         !Number.isInteger(Number(count)) ||
         Number(count) < 1 ||
-        Number(count) > 200 ||
+        Number(count) > 60 ||
         (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       ) {
         setError(
@@ -194,11 +194,10 @@ export default function ExhibitionVisit({
     >
       <h3>زيارة معرض نعيمة وذاكرة بغداد</h3>
       <p>
-        يسرّ بيت التحفيات استقبال زواره خلال أيام المعرض الفني، مع إتاحة الدخول
-        مجاناً عن طريق الحجز المسبق، لضمان تجربة زيارة منظمة ومريحة للجميع.
+        يسرّ بيت التحفيات استقبال زواره خلال أيام المعرض الفني. اختر موعد زيارتك وأكمل بيانات الحجز.
       </p>
       <p>
-        <strong>الدخول مجاني — الحجز المسبق إلزامي.</strong>
+        <strong>يرجى الحجز المسبق وإبراز رمز الحجز عند الوصول.</strong>
       </p>
       {ticket ? (
         <div className={styles.exhibitionTicket} id="exhibition-ticket">
@@ -222,8 +221,6 @@ export default function ExhibitionVisit({
             <dd>{ticket.booking.guest_count}</dd>
             <dt>رقم الحجز</dt>
             <dd dir="ltr">{ticket.booking.booking_reference}</dd>
-            <dt>السعر</dt>
-            <dd>مجاني · 0 USD</dd>
           </dl>
           {ticket.qr && (
             <Image
@@ -273,7 +270,6 @@ export default function ExhibitionVisit({
                     ticket.booking.visit_date,
                     ticket.booking.start_time,
                     ticket.booking.guest_count + " أشخاص",
-                    "مجاني",
                   ].join(" — "),
                 )
               }
@@ -378,7 +374,7 @@ export default function ExhibitionVisit({
                 " – " +
                 selected.end_time.slice(0, 5)
               : "اختر الوقت"}{" "}
-            · {count} أشخاص · مجاني (0 USD)
+            · {count} أشخاص
           </p>
           <div className={styles.actions}>
             <button
@@ -387,7 +383,7 @@ export default function ExhibitionVisit({
               onClick={() => void submit()}
             >
               {" "}
-              {busy ? "جارٍ التحقق والحفظ…" : "تأكيد الحجز المجاني"}
+              {busy ? "جارٍ التحقق والحفظ…" : "تأكيد الحجز"}
             </button>
             <button type="button" disabled={busy} onClick={() => void load()}>
               تحديث المواعيد

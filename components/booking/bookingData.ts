@@ -29,56 +29,6 @@ export const socialLinks: {
   },
 ];
 
-export const bookingOptions: {
-  id: BookingType;
-  title: string;
-  en: string;
-  soon?: boolean;
-  image: string;
-}[] = [
-  {
-    id: "visit",
-    title: "زيارة",
-    en: "Visit",
-    image: "/images/booking/visit.jpg",
-  },
-  {
-    id: "restaurant",
-    title: "حجز مطعم",
-    en: "Restaurant",
-    soon: true,
-    image: "/images/booking/restaurant.jpg",
-  },
-  {
-    id: "photography",
-    title: "جلسة تصوير",
-    en: "Photography",
-    image: "/images/booking/photography.jpg",
-  },
-  {
-    id: "occasion",
-    title: "إقامة مناسبة",
-    en: "Private Occasion",
-    image: "/images/booking/occasion.jpg",
-  },
-  {
-    id: "workshop",
-    title: "ورشة / ندوة",
-    en: "Workshop / Seminar",
-    image: "/images/booking/workshop.jpg",
-  },
-  {
-    id: "auction",
-    title: "مزاد",
-    en: "Auction",
-    soon: true,
-    image: "/images/booking/auction.jpg",
-  },
-  {
-    id: "exhibition",
-    title: "معرض",
-    en: "Exhibition",
-    soon: true,
-    image: "/images/booking/exhibition.jpg",
-  },
+export const bookingOptions: { id: BookingType; title: string; en: string; soon?: boolean; image: string }[] = [
+  { id: "exhibition", title: "نعيمة وذاكرة بغداد", en: "Naima & the Memory of Baghdad", image: "/images/booking/exhibition.jpg" },
 ];

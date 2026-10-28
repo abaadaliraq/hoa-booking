@@ -79,7 +79,7 @@ export function validateBooking(value: unknown): BookingInput {
     typeof guest_count !== "number" ||
     !Number.isInteger(guest_count) ||
     guest_count < 1 ||
-    guest_count > 200
+    guest_count > 60
   )
     throw Error("تحقق من الاسم والهاتف العراقي والتاريخ والموعد وعدد الأشخاص.");
   return { full_name, phone, email, notes, visit_date, slot_id, guest_count };

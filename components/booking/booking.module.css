@@ -653,3 +653,6 @@
     display: none;
   }
 }
+
+.exhibitionOnly { grid-template-columns: minmax(0, 1fr); }
+.exhibitionHours { margin: 0 0 20px; color: #6d4d42; font-size: 14px; line-height: 1.8; }

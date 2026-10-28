@@ -70,7 +70,7 @@ export default function BookingBanner({
 
         <div className={styles.heroText} dir="rtl">
   <p>
-  اختر نوع تجربتك <small dir="ltr">/ Choose Your Experience</small>
+  حجز زيارة المعرض <small dir="ltr">/ Exhibition Visit</small>
 </p>
   <h2>{current?.title}</h2>
   <span dir="ltr">{current?.en}</span>
