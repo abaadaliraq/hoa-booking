@@ -12,9 +12,9 @@ Vercel status
 - Project hoa-booking, production domain hoa-booking-seven.vercel.app.
 - Confirmed existing production variables initially contained only the three NEXT_PUBLIC_EMAILJS_* entries.
 - Successfully added EXHIBITION_SUPABASE_URL, BOOKING_ORIGIN and EXHIBITION_BOOKING_SECRET as Secret variables for Production. Values are not stored in this report or repository.
-- EXHIBITION_SUPABASE_SERVICE_ROLE_KEY is still missing. Browser automation stopped automatically because it could not determine the current browser URL with sufficient confidence. No attempt was made to bypass that restriction or retrieve browser credentials by another method.
-- The missing key must be entered as a server-only Secret variable on this Vercel project, then the latest deployment redeployed. Never use NEXT_PUBLIC_ for it. Local .env.local still needs equivalent server settings to run a live local booking server; existing values were not overwritten.
-- Until the missing key and deployment are confirmed, the production booking integration is not considered operational. No real production booking/notification was tested.
+- EXHIBITION_SUPABASE_SERVICE_ROLE_KEY was initially missing. The user confirmed saving it directly as a Production Secret in Vercel on 2026-10-28. Its value was not sent through the chat or committed.
+- A fresh production deployment is required to read newly saved variables. Server RPCs support both modern secret keys and legacy service-role JWTs. Never use NEXT_PUBLIC_ for the server key. Local .env.local still needs equivalent server settings for a live local booking server; existing local values were not overwritten.
+- Operational acceptance is a successful production GET /api/exhibition/slots returning the actual database inventory after redeployment. No production test booking or email was created.
 
 Tests
 - TypeScript, ESLint and production build passed.

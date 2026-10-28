@@ -7,7 +7,7 @@ Supabase: pwlwelxnrrignapdsyiw
 Diagnosis
 - Production GET /api/exhibition/slots returned HTTP 503.
 - Read-only database verification confirmed 40 open slots, covering 17:00–18:00, 18:00–19:00, 19:00–20:00 and 20:00–21:00. Hourly capacity remains 60 and the shared daily ceiling remains 200. No production bookings existed at this check.
-- The Vercel project list still lacked EXHIBITION_SUPABASE_SERVICE_ROLE_KEY. The three previously configured server variables were present. This is a connection/configuration failure, not unopened inventory.
+- At initial inspection, the Vercel project list lacked EXHIBITION_SUPABASE_SERVICE_ROLE_KEY. The three previously configured server variables were present. This is a connection/configuration failure, not unopened inventory.
 
 Changes
 - Schedule labels now display 5–6, 6–7, 7–8 and 8–9 مساءً instead of 24-hour values, including ticket/summary times.
@@ -24,6 +24,7 @@ Verification
 
 Activation
 - Existing authorization permits the server key to be configured as a Secret for Production on Vercel project hoa-booking. Browser automation could inspect both services but button clicks did not complete the key transfer, so the user was asked to enter/save the key directly without sharing it in the chat.
+- The user subsequently confirmed saving the Production Secret directly in Vercel on 2026-10-28. A fresh deployment must read this new configuration. No key value was shared in the chat or source control.
 - Operational acceptance requires the deployed /api/exhibition/slots response to be 200 and return the real inventory. Do not mark this issue complete on the basis of static time labels alone.
 
 Reference: https://supabase.com/docs/guides/getting-started/api-keys#known-limitations
