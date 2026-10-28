@@ -18,6 +18,19 @@ export function config() {
     secret = process.env.EXHIBITION_BOOKING_SECRET;
   if (url !== target) throw new BookingServiceError("CONFIG_URL");
   if (!key) throw new BookingServiceError("CONFIG_KEY");
+  if (!key.startsWith("sb_secret_")) {
+    // This is configuration validation only; Supabase verifies authenticity.
+    let claims;
+    try {
+      claims = JSON.parse(Buffer.from(key.split(".")[1], "base64url").toString("utf8"));
+    } catch {
+      throw new BookingServiceError("CONFIG_KEY_TYPE");
+    }
+    if (claims.role !== "service_role")
+      throw new BookingServiceError("CONFIG_KEY_ROLE");
+    if (claims.ref !== "pwlwelxnrrignapdsyiw")
+      throw new BookingServiceError("CONFIG_KEY_PROJECT");
+  }
   if (!secret || secret.length < 32)
     throw new BookingServiceError("CONFIG_SIGNING");
   return { url, key, secret };

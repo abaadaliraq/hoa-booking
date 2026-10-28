@@ -6,7 +6,7 @@ import ts from "typescript";
 function module(file, overrides = {}) {
  const output = ts.transpileModule(fs.readFileSync(new URL(file, import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
  const result = { exports: {} };
- vm.runInNewContext("(function(require,module,exports){"+output+"})", { process: { env: overrides.env || {} }, fetch: overrides.fetch, AbortSignal, Response })(id => overrides[id] || {}, result, result.exports);
+ vm.runInNewContext("(function(require,module,exports){"+output+"})", { process: { env: overrides.env || {} }, fetch: overrides.fetch, AbortSignal, Response, Buffer })(id => overrides[id] || {}, result, result.exports);
  return result.exports;
 }
 const { visitTimeChoices, timeWindowLabel } = module("../lib/exhibition/schedule.ts");
@@ -53,4 +53,15 @@ test("upstream credential and permission failures expose only fixed support cate
   const { rpc } = module("../lib/exhibition/server.ts", { env, fetch: async () => Response.json(body, { status }) });
   await assert.rejects(rpc("booking_slots", {}), error => error.supportCode === expected && error.message === "Booking service unavailable");
  }
+});
+
+test("server configuration rejects public credentials and other projects without relaxing database access", () => {
+ const env = { EXHIBITION_SUPABASE_URL: "https://pwlwelxnrrignapdsyiw.supabase.co", EXHIBITION_BOOKING_SECRET: "fixture-only-signing-secret-length-at-least32" };
+ const jwt = (role, ref = "pwlwelxnrrignapdsyiw") => "fixture."+Buffer.from(JSON.stringify({role,ref})).toString("base64url")+".signature";
+ for (const [key, expected] of [["sb_publishable_fixture", "CONFIG_KEY_TYPE"], [jwt("anon"), "CONFIG_KEY_ROLE"], [jwt("service_role", "other-project"), "CONFIG_KEY_PROJECT"]]) {
+  const { config } = module("../lib/exhibition/server.ts", { env: {...env, EXHIBITION_SUPABASE_SERVICE_ROLE_KEY: key} });
+  assert.throws(config, error => error.supportCode === expected);
+ }
+ const { config } = module("../lib/exhibition/server.ts", { env: {...env, EXHIBITION_SUPABASE_SERVICE_ROLE_KEY: jwt("service_role")} });
+ assert.ok(config().key);
 });
