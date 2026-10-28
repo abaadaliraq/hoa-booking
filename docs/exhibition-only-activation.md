@@ -13,6 +13,7 @@ Vercel status
 - Confirmed existing production variables initially contained only the three NEXT_PUBLIC_EMAILJS_* entries.
 - Successfully added EXHIBITION_SUPABASE_URL, BOOKING_ORIGIN and EXHIBITION_BOOKING_SECRET as Secret variables for Production. Values are not stored in this report or repository.
 - EXHIBITION_SUPABASE_SERVICE_ROLE_KEY was initially missing. The user confirmed saving it directly as a Production Secret in Vercel on 2026-10-28. Its value was not sent through the chat or committed.
+- A fresh deployment after that confirmation still returns 503 with CONFIG_KEY. The refreshed environment list also lacks this entry. Provisioning remains incomplete; do not treat the user confirmation as successful activation.
 - A fresh production deployment is required to read newly saved variables. Server RPCs support both modern secret keys and legacy service-role JWTs. Never use NEXT_PUBLIC_ for the server key. Local .env.local still needs equivalent server settings for a live local booking server; existing local values were not overwritten.
 - Operational acceptance is a successful production GET /api/exhibition/slots returning the actual database inventory after redeployment. No production test booking or email was created.
 

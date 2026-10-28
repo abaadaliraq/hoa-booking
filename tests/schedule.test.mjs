@@ -32,3 +32,13 @@ test("opaque secret API keys use apikey header without an invalid Bearer JWT", a
  await rpc("booking_slots", {});
  assert.equal(headers.apikey,"sb_secret_test_fixture_only"); assert.equal(headers.Authorization,undefined);
 });
+
+test("availability diagnostics distinguish missing configuration without exposing credentials", async () => {
+ const env = { EXHIBITION_SUPABASE_URL: "https://pwlwelxnrrignapdsyiw.supabase.co", EXHIBITION_SUPABASE_SERVICE_ROLE_KEY: "sb_secret_fixture_only", EXHIBITION_BOOKING_SECRET: "fixture-only-signing-secret-length-at-least32" };
+ for (const [field, code] of [["EXHIBITION_SUPABASE_URL", "CONFIG_URL"], ["EXHIBITION_SUPABASE_SERVICE_ROLE_KEY", "CONFIG_KEY"], ["EXHIBITION_BOOKING_SECRET", "CONFIG_SIGNING"]]) {
+  const { config } = module("../lib/exhibition/server.ts", { env: { ...env, [field]: "" } });
+  assert.throws(config, error => error.supportCode === code && !error.message.includes(env.EXHIBITION_SUPABASE_SERVICE_ROLE_KEY));
+ }
+ const { rpc } = module("../lib/exhibition/server.ts", { env, fetch: async () => new Response("private upstream response", { status: 401 }) });
+ await assert.rejects(rpc("booking_slots", {}), error => error.supportCode === "DATABASE_401" && !error.message.includes("private upstream response"));
+});
