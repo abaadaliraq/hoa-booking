@@ -43,12 +43,12 @@ export const bookingOptions: {
     image: "/images/booking/visit.jpg",
   },
   {
-  id: "restaurant",
-  title: "حجز مطعم",
-  en: "Restaurant",
-  soon: true,
-  image: "/images/booking/restaurant.jpg",
-},
+    id: "restaurant",
+    title: "حجز مطعم",
+    en: "Restaurant",
+    soon: true,
+    image: "/images/booking/restaurant.jpg",
+  },
   {
     id: "photography",
     title: "جلسة تصوير",

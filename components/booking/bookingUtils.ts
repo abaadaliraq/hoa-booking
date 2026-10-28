@@ -1,9 +1,6 @@
+import { visitPrice } from "../../lib/exhibition/domain";
 import { BookingFormData, BookingType } from "./bookingTypes";
-import {
-  MASTER_CARD_NUMBER,
-  PHOTOGRAPHY_PRICE_PER_HOUR,
-  VISIT_PRICE_PER_PERSON,
-} from "./bookingData";
+import { MASTER_CARD_NUMBER, PHOTOGRAPHY_PRICE_PER_HOUR } from "./bookingData";
 
 export function makeBookingId() {
   return `HOA-${Date.now().toString().slice(-8)}`;
@@ -64,8 +61,8 @@ export function calculatePayment(type: BookingType, data: BookingFormData) {
   if (type === "visit") {
     return {
       payment_required: "-",
-      payment_per_person: `${VISIT_PRICE_PER_PERSON}`,
-      payment_total: `${people * VISIT_PRICE_PER_PERSON}`,
+      payment_per_person: `${visitPrice(data.booking_date)}`,
+      payment_total: `${people * visitPrice(data.booking_date)}`,
       payment_card_number: MASTER_CARD_NUMBER,
     };
   }

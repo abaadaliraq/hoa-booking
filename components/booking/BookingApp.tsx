@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import ExhibitionVisit from "./ExhibitionVisit";
+import { visitMode } from "../../lib/exhibition/domain";
+import { useEffect, useMemo, useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 
 import styles from "./booking.module.css";
@@ -96,7 +98,33 @@ export default function BookingApp() {
   const [reportData, setReportData] = useState<BookingFormData | null>(null);
   const [status, setStatus] = useState("");
   const [sending, setSending] = useState(false);
+  const [exhibitionLocked, setExhibitionLocked] = useState(false);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const saved = JSON.parse(
+          sessionStorage.getItem("abaad_exhibition_request") || "null",
+        );
+        if (
+          saved?.payload &&
+          visitMode(saved.payload.visit_date) === "exhibition" &&
+          Number.isInteger(saved.payload.guest_count)
+        ) {
+          setBookingType("visit");
+          setData((current) => ({
+            ...current,
+            booking_date: saved.payload.visit_date,
+            people_count: String(saved.payload.guest_count),
+          }));
+          setExhibitionLocked(true);
+        }
+      } catch {
+        /* Session recovery is optional when browser storage is unavailable. */
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
   const reportRef = useRef<HTMLDivElement>(null);
 
   const payment = useMemo(() => {
@@ -104,12 +132,13 @@ export default function BookingApp() {
   }, [bookingType, data]);
 
   const peopleCount = Number(data.people_count || 0);
-const isSoon =
-  bookingType === "restaurant" ||
-  bookingType === "auction" ||
-  bookingType === "exhibition";
+  const isSoon =
+    bookingType === "restaurant" ||
+    bookingType === "auction" ||
+    bookingType === "exhibition";
 
   const isVisit = bookingType === "visit";
+  const exhibitionMode = isVisit ? visitMode(data.booking_date) : "regular";
   const isPhotography = bookingType === "photography";
   const needsTimeRange = !isVisit && !isPhotography;
 
@@ -168,7 +197,9 @@ const isSoon =
       payment_card_number:
         data.payment_method === "ماستر كارد" ? MASTER_CARD_NUMBER : "-",
       photography_price_per_hour:
-        bookingType === "photography" ? `${PHOTOGRAPHY_PRICE_PER_HOUR}` : data.photography_price_per_hour,
+        bookingType === "photography"
+          ? `${PHOTOGRAPHY_PRICE_PER_HOUR}`
+          : data.photography_price_per_hour,
     };
 
     return finalData;
@@ -225,7 +256,9 @@ const isSoon =
       photography_type: valueOrFallback(finalData.photography_type),
       photography_other: valueOrFallback(finalData.photography_other),
       photography_hours: valueOrFallback(finalData.photography_hours),
-      photography_price_per_hour: valueOrFallback(finalData.photography_price_per_hour),
+      photography_price_per_hour: valueOrFallback(
+        finalData.photography_price_per_hour,
+      ),
       payment_required: valueOrFallback(finalData.payment_required),
       payment_method: valueOrFallback(finalData.payment_method),
       payment_per_person: valueOrFallback(finalData.payment_per_person),
@@ -245,7 +278,9 @@ const isSoon =
       province: valueOrFallback(finalData.province),
       interests: valueOrFallback(finalData.interests),
       restaurant_area: valueOrFallback(finalData.restaurant_area),
-      restaurant_booking_type: valueOrFallback(finalData.restaurant_booking_type),
+      restaurant_booking_type: valueOrFallback(
+        finalData.restaurant_booking_type,
+      ),
       food_notes: valueOrFallback(finalData.food_notes),
       workshop_topic: valueOrFallback(finalData.workshop_topic),
       organizer_name: valueOrFallback(finalData.organizer_name),
@@ -296,6 +331,10 @@ const isSoon =
       return "أدخل عدد الأشخاص بشكل صحيح.";
     }
 
+    if (isVisit && exhibitionMode === "private")
+      return "30 أكتوبر مخصص لضيوف الافتتاح المدعوين. لا يتوفر حجز عام.";
+    if (isVisit && exhibitionMode === "exhibition")
+      return "استخدم تأكيد الحجز المجاني للمعرض.";
     if (isVisit) {
       if (!data.booking_date) {
         return "حدد تاريخ الزيارة.";
@@ -403,7 +442,7 @@ const isSoon =
 
     if (!serviceId || !templateId || !publicKey) {
       setStatus(
-        "إعدادات EmailJS ناقصة. يجب التأكد من أسماء المتغيرات داخل .env.local و Vercel."
+        "إعدادات EmailJS ناقصة. يجب التأكد من أسماء المتغيرات داخل .env.local و Vercel.",
       );
       return;
     }
@@ -424,7 +463,9 @@ const isSoon =
       setStatus("تم إرسال طلب الحجز بنجاح.");
     } catch (error) {
       console.error("EmailJS booking send failed:", error);
-      setStatus("فشل إرسال الحجز. يرجى التأكد من إعدادات EmailJS أو المحاولة مرة ثانية، وتم تسجيل سبب الخطأ في Console.");
+      setStatus(
+        "فشل إرسال الحجز. يرجى التأكد من إعدادات EmailJS أو المحاولة مرة ثانية، وتم تسجيل سبب الخطأ في Console.",
+      );
     } finally {
       setSending(false);
     }
@@ -499,13 +540,14 @@ const isSoon =
 
                     <input
                       type="date"
+                      disabled={exhibitionLocked}
                       value={data.booking_date}
                       onChange={(e) => update("booking_date", e.target.value)}
                       required
                     />
                   </label>
 
-                  {isVisit && (
+                  {isVisit && exhibitionMode === "regular" && (
                     <label className={styles.field}>
                       <span>
                         ساعة الزيارة / <small>Visit Time</small>
@@ -551,54 +593,82 @@ const isSoon =
                   )}
                 </div>
 
-                {needsTimeRange && data.start_time && data.end_time && !data.duration_hours && (
-                  <p className={styles.warning}>
-                    وقت النهاية لازم يكون بعد وقت البداية.
-                  </p>
-                )}
-
-                {bookingType === "visit" && (
-                  <VisitFields data={data} update={update} />
-                )}
-
-                {bookingType === "photography" && (
-                  <PhotographyFields data={data} update={update} />
-                )}
-
-                {bookingType === "occasion" && (
-                  <OccasionFields data={data} update={update} />
-                )}
-
-                {bookingType === "workshop" && (
-                  <WorkshopFields data={data} update={update} />
-                )}
-
-                {!isVisit && peopleCount >= 4 && (
-                  <GroupFields data={data} update={update} />
-                )}
-
-                <CustomerFields data={data} update={update} basicOnly={isVisit} />
-
-                {(bookingType === "visit" || bookingType === "photography") && (
-                  <PaymentFields
-                    data={data}
-                    update={update}
-                    payment={payment}
-                    priceLabel={bookingType === "photography" ? "سعر الساعة" : "سعر الشخص"}
+                {isVisit && exhibitionMode === "exhibition" ? (
+                  <ExhibitionVisit
+                    key={data.booking_date}
+                    date={data.booking_date}
+                    count={data.people_count}
+                    onLock={setExhibitionLocked}
                   />
+                ) : isVisit && exhibitionMode === "private" ? (
+                  <p role="alert" className={styles.warning}>
+                    30 أكتوبر مخصص لضيوف الافتتاح المدعوين. اختر تاريخاً من 31
+                    أكتوبر إلى 9 نوفمبر للحجز العام المجاني.
+                  </p>
+                ) : (
+                  <>
+                    {needsTimeRange &&
+                      data.start_time &&
+                      data.end_time &&
+                      !data.duration_hours && (
+                        <p className={styles.warning}>
+                          وقت النهاية لازم يكون بعد وقت البداية.
+                        </p>
+                      )}
+
+                    {bookingType === "visit" && (
+                      <VisitFields data={data} update={update} />
+                    )}
+
+                    {bookingType === "photography" && (
+                      <PhotographyFields data={data} update={update} />
+                    )}
+
+                    {bookingType === "occasion" && (
+                      <OccasionFields data={data} update={update} />
+                    )}
+
+                    {bookingType === "workshop" && (
+                      <WorkshopFields data={data} update={update} />
+                    )}
+
+                    {!isVisit && peopleCount >= 4 && (
+                      <GroupFields data={data} update={update} />
+                    )}
+
+                    <CustomerFields
+                      data={data}
+                      update={update}
+                      basicOnly={isVisit}
+                    />
+
+                    {(bookingType === "visit" ||
+                      bookingType === "photography") && (
+                      <PaymentFields
+                        data={data}
+                        update={update}
+                        payment={payment}
+                        priceLabel={
+                          bookingType === "photography"
+                            ? "سعر الساعة"
+                            : "سعر الشخص"
+                        }
+                      />
+                    )}
+
+                    <div className={styles.actions}>
+                      <button type="button" onClick={handlePreview}>
+                        عرض الملخص / Preview
+                      </button>
+
+                      <button type="submit" disabled={sending}>
+                        {sending ? "جاري الإرسال..." : "إرسال الحجز / Submit"}
+                      </button>
+                    </div>
+
+                    {status && <p className={styles.status}>{status}</p>}
+                  </>
                 )}
-
-                <div className={styles.actions}>
-                  <button type="button" onClick={handlePreview}>
-                    عرض الملخص / Preview
-                  </button>
-
-                  <button type="submit" disabled={sending}>
-                    {sending ? "جاري الإرسال..." : "إرسال الحجز / Submit"}
-                  </button>
-                </div>
-
-                {status && <p className={styles.status}>{status}</p>}
               </>
             )}
           </section>

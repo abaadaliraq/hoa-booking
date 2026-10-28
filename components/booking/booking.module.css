@@ -591,3 +591,65 @@
     display: none;
   }
 }
+.exhibitionSection {
+  margin-top: 20px;
+  border-top: 1px solid rgba(90, 20, 20, 0.14);
+  padding-top: 18px;
+  font-size: 14px;
+  line-height: 1.9;
+}
+.exhibitionSection h3 {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 8px;
+}
+.exhibitionSection p {
+  margin: 8px 0 16px;
+}
+.exhibitionTicket {
+  border-top: 1px solid rgba(90, 20, 20, 0.14);
+  padding: 18px 0;
+}
+.exhibitionTicket dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 16px;
+}
+.exhibitionTicket dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.exhibitionTicket img {
+  display: block;
+  max-width: 100%;
+  margin: 16px auto;
+}
+.honeypot {
+  position: absolute;
+  clip-path: inset(50%);
+  margin: -1px;
+  white-space: nowrap;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .exhibitionTicket,
+  .exhibitionTicket * {
+    visibility: visible;
+  }
+  .exhibitionTicket {
+    position: absolute;
+    inset: 0;
+    background: white;
+    padding: 20px;
+  }
+  .exhibitionTicket button,
+  .exhibitionTicket a,
+  .exhibitionTicket small {
+    display: none;
+  }
+}
