@@ -9,6 +9,7 @@ Scope: C:\HOA-SYSTEM\booking; Supabase pwlwelxnrrignapdsyiw only.
 - Existing function source hashes matched the production functions before replacement. No guests, check-ins, sales or test bookings were written to production.
 
 Vercel status
+- Current acceptance: corrected server credential loaded successfully after deployment 2ca6f26; production slots API returned HTTP 200 with 40 real slots, and the browser form displayed a selectable evening period without a connection error. Earlier provisioning failures below are historical. No production test booking was created.
 - Project hoa-booking, production domain hoa-booking-seven.vercel.app.
 - Confirmed existing production variables initially contained only the three NEXT_PUBLIC_EMAILJS_* entries.
 - Successfully added EXHIBITION_SUPABASE_URL, BOOKING_ORIGIN and EXHIBITION_BOOKING_SECRET as Secret variables for Production. Values are not stored in this report or repository.
