@@ -22,14 +22,14 @@ export default function BookingApp() {
   }, []);
   return <main className={styles.page}>
     <section className={styles.shell}>
-      <header className={styles.header}><div className={styles.brandTitle}><span>بيت التحفيات</span><small>House of Antiques</small></div></header>
+      {!showTicket && <header className={styles.header}><div className={styles.brandTitle}><span>بيت التحفيات</span><small>House of Antiques</small></div></header>}
       {!showTicket && <BookingBanner bookingType="exhibition" />}
       <div className={`${styles.formGrid} ${styles.exhibitionOnly}`}>
         <section className={styles.formPanel} aria-label="حجز المعرض">
           {!showTicket && <>
           <div className={styles.sectionTitle}>حجز المعرض / Exhibition Booking</div>
           <p className={styles.exhibitionHours}>31 أكتوبر – 9 نوفمبر 2026 · من 5 عصراً إلى 9 مساءً</p>
-          <div className={styles.twoCols}>
+          <div className={`${styles.twoCols} ${styles.visitMeta}`}>
             <label className={styles.field}><span>تاريخ الزيارة / <small>Date</small></span>
               <input type="date" min={exhibitionDates.first} max={exhibitionDates.last} value={date} disabled={locked} onChange={e => setDate(e.target.value)} required />
             </label>

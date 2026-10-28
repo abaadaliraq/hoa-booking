@@ -187,13 +187,7 @@ export default function ExhibitionVisit({
       aria-label="حجز زيارة المعرض"
     >
       {!ticket && <>
-      <h3>زيارة معرض نعيمة وذاكرة بغداد</h3>
-      <p>
-        يسرّ بيت التحفيات استقبال زواره خلال أيام المعرض الفني. اختر موعد زيارتك وأكمل بيانات الحجز.
-      </p>
-      <p>
-        <strong>يرجى الحجز المسبق وإبراز رمز الحجز عند الوصول.</strong>
-      </p>
+      <p>اختر وقت الزيارة وأكمل بياناتك. احتفظ بالباركود لإبرازه عند الوصول.</p>
       </>}
       {ticket ? (
         <div className={styles.ticketResult}>
@@ -206,8 +200,13 @@ export default function ExhibitionVisit({
                 : "الحجز محفوظ. إشعار البريد لم يُؤكّد؛ يمكنك إعادة المحاولة بعد دقيقة دون إنشاء حجز آخر."}
           </p>
           <div className={styles.ticketActions}>
+            {ticket.booking.status === "confirmed" && ticket.qr && <a
+              className={styles.saveQr}
+              href={ticket.qr}
+              download={`ABAAD-${ticket.booking.booking_reference}.png`}
+            >حفظ الباركود على الهاتف</a>}
             <button type="button" onClick={() => window.print()}>
-              حفظ التذكرة / طباعة
+              طباعة التذكرة
             </button>
             {ticket.notification_status !== "sent" && (
               <button
@@ -221,6 +220,7 @@ export default function ExhibitionVisit({
             <a
               target="_blank"
               rel="noopener noreferrer"
+              title="يفتح WhatsApp؛ اضغط إرسال داخل التطبيق لمشاركة التفاصيل"
               href={
                 "https://wa.me/" +
                 WHATSAPP_BOOKING_PHONE +
@@ -256,9 +256,6 @@ export default function ExhibitionVisit({
           >
             بدء حجز جديد
           </button>
-          <small className={styles.ticketShareHint}>
-            يفتح الرابط WhatsApp؛ اضغط إرسال داخل التطبيق لإرسال الرسالة.
-          </small>
         </div>
       ) : (
         <form ref={formRef} noValidate onSubmit={e => { e.preventDefault(); void submit(); }}>

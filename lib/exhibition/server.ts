@@ -159,11 +159,11 @@ async function notify(
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            service_id: service,
-            template_id: template,
-            user_id: publicKey,
-            ...(process.env.EMAILJS_PRIVATE_KEY
-              ? { accessToken: process.env.EMAILJS_PRIVATE_KEY }
+            service_id: service.trim(),
+            template_id: template.trim(),
+            user_id: publicKey.trim(),
+            ...(process.env.EMAILJS_PRIVATE_KEY?.trim()
+              ? { accessToken: process.env.EMAILJS_PRIVATE_KEY.trim() }
               : {}),
             template_params: {...params,summary:params.message},
           }),

@@ -54,6 +54,7 @@ test('ticket preserves authoritative booking facts and exact QR source without i
  assert.ok(html.includes('PREVIEW-ONLY'));
  assert.ok(html.includes('5 – 6 مساءً'));
  assert.ok(html.includes('src="data:image/png;base64,fixture"'));
+ assert.ok(html.indexOf('<img') < html.indexOf('ضيف بيت التحفيات'));
  assert.ok(!html.includes('دولار'));
  const cancelled=renderToStaticMarkup(React.createElement(Ticket,{ticket:{...fixture,booking:{...fixture.booking,status:'cancelled'}}}));
  assert.ok(cancelled.includes('الحجز ملغى'));
