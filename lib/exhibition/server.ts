@@ -38,7 +38,19 @@ export async function rpc<T>(
     body: JSON.stringify(args),
     signal: AbortSignal.timeout(15000),
   });
-  if (!res.ok) throw new BookingServiceError("DATABASE_" + res.status);
+  if (!res.ok) {
+    // Return only fixed categories; never expose upstream bodies or credentials.
+    const detail = await res.json().catch(() => null);
+    const message = typeof detail?.message === "string" ? detail.message : "";
+    const code = typeof detail?.code === "string" ? detail.code : "";
+    if (res.status === 401 && /invalid api key/i.test(message))
+      throw new BookingServiceError("KEY_REJECTED");
+    if (res.status === 401 && /^PGRST30[123]$/.test(code))
+      throw new BookingServiceError("TOKEN_REJECTED");
+    if (code === "42501")
+      throw new BookingServiceError("DATABASE_PERMISSION");
+    throw new BookingServiceError("DATABASE_" + res.status);
+  }
   return res.json();
 }
 export function hash(value: string) {

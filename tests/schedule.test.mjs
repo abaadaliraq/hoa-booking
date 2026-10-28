@@ -42,3 +42,15 @@ test("availability diagnostics distinguish missing configuration without exposin
  const { rpc } = module("../lib/exhibition/server.ts", { env, fetch: async () => new Response("private upstream response", { status: 401 }) });
  await assert.rejects(rpc("booking_slots", {}), error => error.supportCode === "DATABASE_401" && !error.message.includes("private upstream response"));
 });
+
+test("upstream credential and permission failures expose only fixed support categories", async () => {
+ const env = { EXHIBITION_SUPABASE_URL: "https://pwlwelxnrrignapdsyiw.supabase.co", EXHIBITION_SUPABASE_SERVICE_ROLE_KEY: "sb_secret_fixture_only", EXHIBITION_BOOKING_SECRET: "fixture-only-signing-secret-length-at-least32" };
+ for (const [status, body, expected] of [
+  [401, { message: "Invalid API key" }, "KEY_REJECTED"],
+  [401, { code: "PGRST301", message: "private token details" }, "TOKEN_REJECTED"],
+  [403, { code: "42501", message: "private table details" }, "DATABASE_PERMISSION"],
+ ]) {
+  const { rpc } = module("../lib/exhibition/server.ts", { env, fetch: async () => Response.json(body, { status }) });
+  await assert.rejects(rpc("booking_slots", {}), error => error.supportCode === expected && error.message === "Booking service unavailable");
+ }
+});
