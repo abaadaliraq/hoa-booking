@@ -16,7 +16,7 @@ Changes
 - Server-side RPC fetches support modern sb_secret keys through apikey without treating them as Bearer JWTs. Legacy JWT server keys retain their existing Authorization header. URL/key input trims accidental copy whitespace; no key value was placed in code, logs or this report.
 
 Verification
-- Five isolated schedule/key-transport/diagnostic tests passed.
+- Seven isolated schedule/key-transport/diagnostic tests passed.
 - Eight existing isolated capacity tests passed.
 - Eight existing booking HTTP/domain tests passed.
 - TypeScript, ESLint and Production Build checked.
@@ -27,6 +27,8 @@ Activation
 - The user subsequently confirmed saving the Production Secret directly in Vercel on 2026-10-28. A fresh deployment must read this new configuration. No key value was shared in the chat or source control.
 - Post-deployment verification still returned 503. Safe diagnostic code CONFIG_KEY confirms the deployed process has no EXHIBITION_SUPABASE_SERVICE_ROLE_KEY; the refreshed project environment list also lacks that name. User confirmation alone did not establish successful provisioning. The user was asked to verify the saved entry in the exact project and Production scope.
 - Availability responses include only allowlisted configuration categories or upstream HTTP status as support_code; upstream bodies, credentials and booking data are never included in diagnostics.
+- On the next user-confirmed save, deployment 6fc4f05 read a nonempty key but Supabase returned 401. Fixed-category diagnostics identified a database permission denial. Read-only execution of public.booking_slots() as service_role returned all 40 slots, confirming the existing database grants work without modification.
+- Deployment 227843e adds server credential type/legacy-role/project checks. Production returned CONFIG_KEY_TYPE: the saved value is neither a modern server secret nor a parseable legacy service-role JWT. The user must replace it with the complete Secret key using the Dashboard Copy control. No key was read, printed, committed or sent to the browser.
 - Operational acceptance requires the deployed /api/exhibition/slots response to be 200 and return the real inventory. Do not mark this issue complete on the basis of static time labels alone.
 
 Reference: https://supabase.com/docs/guides/getting-started/api-keys#known-limitations
