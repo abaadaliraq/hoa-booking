@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { type Slot } from "../../lib/exhibition/domain";
 import { bookingFormInput } from "../../lib/exhibition/form";
 import ExhibitionTicket, { type ExhibitionTicketData as Ticket } from "./ExhibitionTicket";
+import SaveQrButton from './SaveQrButton';
 import { visitTimeChoices, timeWindowLabel } from "../../lib/exhibition/schedule";
 import { WHATSAPP_BOOKING_PHONE } from "./bookingData";
 import styles from "./booking.module.css";
@@ -200,11 +201,7 @@ export default function ExhibitionVisit({
                 : "الحجز محفوظ. إشعار البريد لم يُؤكّد؛ يمكنك إعادة المحاولة بعد دقيقة دون إنشاء حجز آخر."}
           </p>
           <div className={styles.ticketActions}>
-            {ticket.booking.status === "confirmed" && ticket.qr && <a
-              className={styles.saveQr}
-              href={ticket.qr}
-              download={`ABAAD-${ticket.booking.booking_reference}.png`}
-            >حفظ الباركود على الهاتف</a>}
+            {ticket.booking.status === "confirmed" && ticket.qr && <SaveQrButton key={ticket.booking.id} qr={ticket.qr} reference={ticket.booking.booking_reference}/>}
             <button type="button" onClick={() => window.print()}>
               طباعة التذكرة
             </button>
