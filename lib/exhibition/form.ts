@@ -7,7 +7,7 @@ export function bookingFormInput(form: FormData, date: string, count: string) {
   if (full_name.length < 2 || full_name.length > 160)
     throw Error("يرجى إدخال الاسم الكامل، من حرفين إلى 160 حرفاً.");
   if (!normalizePhone(phone))
-    throw Error("يرجى التحقق من رقم الهاتف العراقي، مثال: 07701234567.");
+    throw Error("أدخل رقم الهاتف مع رمز الدولة، مثال: +447700900123، أو الرقم العراقي مثل 07701234567.");
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     throw Error("يرجى التحقق من البريد الإلكتروني أو تركه فارغاً.");
   if (!text("slot_id")) throw Error("يرجى اختيار وقت الزيارة.");

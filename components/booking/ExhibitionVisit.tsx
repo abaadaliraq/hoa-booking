@@ -268,17 +268,18 @@ export default function ExhibitionVisit({
               />
             </label>
             <label className={styles.field}>
-              <span>الهاتف العراقي</span>
+              <span>رقم الهاتف مع رمز الدولة</span>
               <input
                 name="phone"
                 type="tel"
                 dir="ltr"
-                placeholder="07xxxxxxxxx"
+                placeholder="+447700900123 / 07701234567"
                 defaultValue={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 autoComplete="tel"
-                maxLength={24}
+                maxLength={40}
               />
+              <small>للأرقام الأجنبية ابدأ بـ + ورمز الدولة، أو استخدم 00. الرقم العراقي 07 مقبول أيضاً.</small>
             </label>
             <label className={styles.field}>
               <span>البريد الإلكتروني — اختياري</span>

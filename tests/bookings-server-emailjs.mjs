@@ -121,7 +121,8 @@ try {
       "0770 123 4567",
     ])
       assert.equal(domain.normalizePhone(v), "+9647701234567");
-    for (const v of ["123", "+971501234567", "077012345678", "+964780"])
+    assert.equal(domain.normalizePhone('+971501234567'),'+971501234567');
+    for (const v of ["123", "077012345678", "+964780"])
       assert.equal(domain.normalizePhone(v), null);
   });
   const slot = (

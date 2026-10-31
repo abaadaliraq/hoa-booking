@@ -26,12 +26,12 @@ export function normalizePhone(value: string) {
           : "۰۱۲۳۴۵۶۷۸۹".indexOf(c),
       ),
     )
-    .replace(/[\s()-]/g, "");
-  const phone = clean
-    .replace(/^00964/, "+964")
-    .replace(/^964/, "+964")
-    .replace(/^07/, "+9647");
-  return /^\+9647[0-9]{9}$/.test(phone) ? phone : null;
+    .replace(/[\s().-]/g, "");
+  let phone = clean;
+  if(phone.startsWith('00'))phone='+'+phone.slice(2);
+  else if(/^07\d{9}$/.test(phone))phone='+964'+phone.slice(1);
+  else if(/^964\d+$/.test(phone))phone='+'+phone;
+  return /^\+[1-9][0-9]{6,14}$/.test(phone) ? phone : null;
 }
 export type Slot = {
   id: string;
@@ -81,6 +81,6 @@ export function validateBooking(value: unknown): BookingInput {
     guest_count < 1 ||
     guest_count > 60
   )
-    throw Error("تحقق من الاسم والهاتف العراقي والتاريخ والموعد وعدد الأشخاص.");
+    throw Error("تحقق من الاسم ورقم الهاتف مع رمز الدولة والتاريخ والموعد وعدد الأشخاص.");
   return { full_name, phone, email, notes, visit_date, slot_id, guest_count };
 }
