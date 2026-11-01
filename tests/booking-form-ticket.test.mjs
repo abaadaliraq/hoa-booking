@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+const awaitedJsx = await import('react/jsx-runtime');
 const styles = new Proxy({}, { get: (_, name) => String(name) });
 function load(file, deps = {}) {
  const result = { exports: {} };
@@ -27,7 +28,7 @@ const {default:Ticket} = load('../components/booking/ExhibitionTicket.tsx', {
 const slot='5fa5c3b3-b7ff-4c1b-83f4-6698a55f347a';
 function form(values={}) {
  const data=new FormData();
- for(const [key,value] of Object.entries({full_name:'ضيف الاختبار',phone:'٠٧٧٠١٢٣٤٥٦٧',email:'',notes:'',slot_id:slot,...values}))data.set(key,value);
+ for(const [key,value] of Object.entries({full_name:'ضيف الاختبار',phone:'٠٧٧٠١٢٣٤٥٦٧',gender:'female',email:'',notes:'',slot_id:slot,...values}))data.set(key,value);
  return data;
 }
 test('submission reads the populated controls on the first attempt without needing an input event',()=>{
@@ -44,10 +45,41 @@ test('errors identify the actual missing field and valid fields need no retyping
  assert.equal(bookingFormInput(data,'2026-10-31','2').full_name,'ضيف الاختبار');
  assert.throws(()=>bookingFormInput(form({phone:''}),'2026-10-31','1'),/رقم الهاتف/);
  assert.throws(()=>bookingFormInput(form({full_name:''}),'2026-10-31','1'),/الاسم الكامل/);
- assert.throws(()=>bookingFormInput(form({slot_id:''}),'2026-10-31','1'),/وقت الزيارة/);
+ assert.throws(()=>bookingFormInput(form({slot_id:''}),'2026-10-31','1'),/أماكن/);
+ assert.throws(()=>bookingFormInput(form({gender:''}),'2026-10-31','1'),/الجنس/);
+ assert.throws(()=>bookingFormInput(form({gender:'invalid'}),'2026-10-31','1'),/الجنس/);
+ assert.equal(bookingFormInput(form(),'2026-10-31','1').gender,'female');
  assert.throws(()=>bookingFormInput(form(),'2026-10-31','61'));
 });
 const fixture={booking:{id:'preview-only',booking_reference:'PREVIEW-ONLY',full_name:'ضيف بيت التحفيات',visit_date:'2026-10-31',start_time:'17:00:00',end_time:'18:00:00',guest_count:2,status:'confirmed'},qr:'data:image/png;base64,fixture',notification_status:'sent'};
+test('daily availability uses only the real full-day row, not the first available hour',()=>{
+ const old={id:slot,visit_date:'2026-10-31',start_time:'17:00:00',end_time:'18:00:00',remaining:60};
+ assert.equal(schedule.dailyVisitSlot([old],'2026-10-31'),undefined);
+ const daily={...old,end_time:'21:00:00',remaining:198};
+ assert.equal(schedule.dailyVisitSlot([old,daily],'2026-10-31').remaining,198);
+ assert.equal(schedule.dailyVisitSlot([{...daily,remaining:0}],'2026-10-31'),undefined);
+ assert.equal(schedule.dailyVisitSlot([daily],'2026-11-01'),undefined);
+});
+test('legacy retries keep their exact normalized payload without inserting an empty gender',()=>{
+ const old=domain.validateBooking({full_name:'حجز سابق',phone:'+447700900123',email:'',notes:'',visit_date:'2026-10-31',slot_id:slot,guest_count:2});
+ assert.equal(Object.hasOwn(old,'gender'),false);
+ assert.throws(()=>domain.validateBooking({...old,gender:'unknown'}));
+});
+test('public form has a gender selector and no hourly time selection',()=>{
+ const {default:Visit}=load('../components/booking/ExhibitionVisit.tsx',{
+  'react':React,'react/jsx-runtime':awaitedJsx,
+  '../../lib/exhibition/form':{bookingFormInput},
+  '../../lib/exhibition/schedule':schedule,
+  './ExhibitionTicket':{__esModule:true,default:Ticket},
+  './SaveQrButton':{__esModule:true,default:()=>null},
+  './bookingData':{WHATSAPP_BOOKING_PHONE:'000'},
+  './booking.module.css':{__esModule:true,default:styles},
+ });
+ const html=renderToStaticMarkup(React.createElement(Visit,{date:'2026-10-31',count:'1',onLock:()=>{},onTicket:()=>{}}));
+ assert.ok(html.includes('name="gender"'));assert.ok(html.includes('value="male"'));assert.ok(html.includes('value="female"'));
+ assert.ok(!/<select[^>]*name="slot_id"/.test(html));assert.ok(html.includes('type="hidden" name="slot_id"'));
+ assert.ok(html.includes('بين 5 و9 مساءً'));
+});
 test('ticket preserves authoritative booking facts and exact QR source without invented prices',()=>{
  const html=renderToStaticMarkup(React.createElement(Ticket,{ticket:fixture}));
  assert.ok(html.includes('ضيف بيت التحفيات'));

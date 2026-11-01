@@ -10,7 +10,8 @@ export function bookingFormInput(form: FormData, date: string, count: string) {
     throw Error("أدخل رقم الهاتف مع رمز الدولة، مثال: +447700900123، أو الرقم العراقي مثل 07701234567.");
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     throw Error("يرجى التحقق من البريد الإلكتروني أو تركه فارغاً.");
-  if (!text("slot_id")) throw Error("يرجى اختيار وقت الزيارة.");
+  if (!["male", "female"].includes(text("gender"))) throw Error("يرجى اختيار الجنس.");
+  if (!text("slot_id")) throw Error("لا تتوفر أماكن لهذا اليوم. اختر يوماً آخر.");
   return validateBooking({ full_name, phone, email, notes: text("notes"),
-    visit_date: date, slot_id: text("slot_id"), guest_count: Number(count) });
+    gender: text("gender"), visit_date: date, slot_id: text("slot_id"), guest_count: Number(count) });
 }

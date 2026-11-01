@@ -1,6 +1,7 @@
 import { createHash, createHmac, randomUUID } from "node:crypto";
 import QRCode from "qrcode";
 import { validateBooking } from "./domain";
+import { timeWindowLabel } from "./schedule";
 const target = "https://pwlwelxnrrignapdsyiw.supabase.co";
 export const responseHeaders = {
   "Cache-Control": "private, no-store, max-age=0",
@@ -127,7 +128,7 @@ async function notify(
   if (!service || !template || !publicKey) status = "unconfigured";
   else
     try {
-      const timeAr=new Intl.DateTimeFormat('ar-IQ',{timeZone:'Asia/Baghdad',hour:'numeric',minute:'2-digit'}).format(new Date(b.visit_date+'T'+b.start_time+'+03:00'));
+      const timeAr=timeWindowLabel(b.start_time,b.end_time);
       const params = {
         created_at:b.created_at,
         start_time_ar:timeAr,visit_time_ar:timeAr,
@@ -135,11 +136,12 @@ async function notify(
         booking_id: b.booking_reference,
         event_type: "زيارة معرض نعيمة وذاكرة بغداد",
         full_name: b.full_name,
+        gender: input.gender === 'male' ? 'ذكر' : input.gender === 'female' ? 'أنثى' : '',
         phone: input.phone,
         email: input.email,
         booking_date: b.visit_date,
         start_time: b.start_time,
-        visit_time: b.start_time,
+        visit_time: timeAr,
         people_count: b.guest_count,
         payment_per_person: "",
         payment_total: "",
@@ -149,7 +151,7 @@ async function notify(
           b.booking_reference,
           b.full_name,
           b.visit_date,
-          b.start_time,
+          timeAr,
           b.guest_count + " أشخاص",
         ].join(" — "),
       };
@@ -214,7 +216,7 @@ export async function createBooking(request: Request) {
       throw Error("key");
   } catch {
     return Response.json(
-      { error: "تحقق من البيانات ورقم الهاتف العراقي والموعد المختار." },
+      { error: "تحقق من بيانات الحجز ورقم الهاتف مع رمز الدولة والجنس." },
       { status: 400, headers: responseHeaders },
     );
   }
@@ -240,7 +242,9 @@ export async function createBooking(request: Request) {
       return Response.json(
         {
           error:
-            saved.code === "daily_capacity"
+            saved.code === "gender_required"
+              ? "يرجى اختيار الجنس ثم تأكيد الحجز."
+              : saved.code === "daily_capacity"
               ? "اكتمل عدد الزوار لهذا اليوم. اختر يوماً آخر."
               : saved.code === "capacity"
               ? "الأماكن المتبقية لا تكفي. اختر موعداً آخر."
@@ -249,7 +253,7 @@ export async function createBooking(request: Request) {
                 : "الموعد مغلق أو غير متاح.",
         },
         {
-          status: saved.code === "rate_limit" ? 429 : 409,
+          status: saved.code === "rate_limit" ? 429 : saved.code === "gender_required" ? 400 : 409,
           headers: responseHeaders,
         },
       );

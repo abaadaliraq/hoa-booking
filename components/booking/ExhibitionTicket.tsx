@@ -12,7 +12,7 @@ export type ExhibitionTicketData = {
 
 export default function ExhibitionTicket({ ticket }: { ticket: ExhibitionTicketData }) {
   const b = ticket.booking, confirmed = b.status === "confirmed";
-  const date = new Intl.DateTimeFormat("ar-IQ", {
+  const date = new Intl.DateTimeFormat("ar-IQ-u-nu-latn", {
     day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Baghdad",
   }).format(new Date(b.visit_date + "T12:00:00Z"));
   return <article className={styles.exhibitionTicket} id="exhibition-ticket" tabIndex={-1} aria-labelledby="ticket-title">

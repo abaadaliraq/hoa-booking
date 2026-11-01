@@ -125,22 +125,29 @@ try {
     for (const v of ["123", "077012345678", "+964780"])
       assert.equal(domain.normalizePhone(v), null);
   });
+  const atTestTime=sql=>sql.replaceAll('now()',"(timestamptz '2026-10-31 15:00:00+03')");
+  await f.db.exec(atTestTime(fs.readFileSync(booking+'/supabase/exhibition-capacity-200.review.sql','utf8')));
+  await f.db.exec(atTestTime(fs.readFileSync(booking+'/../gallery-org/supabase/booking-visitors.review.sql','utf8')));
+  await f.db.exec(fs.readFileSync(booking+'/supabase/international-phones.review.sql','utf8'));
+  await f.db.exec(fs.readFileSync(booking+'/supabase/daily-booking-gender.review.sql','utf8'));
+  const initial=(await f.rpc('service_role','booking_slots')).find(s=>s.visit_date==='2026-10-31');
   const slot = (
     await f.rpc("admin", "booking_slot_save", [
-      null,
+      initial.id,
       {
         visit_date: "2026-10-31",
-        start_time: "18:00",
+        start_time: "17:00",
         end_time: "21:00",
         capacity: 6,
         is_closed: false,
       },
-      null,
+      2,
     ])
   ).id;
   const payload = {
     request_key: randomUUID(),
     full_name: "زائر اختبار خادم",
+    gender: "female",
     phone: "07701234567",
     email: "test@example.invalid",
     visit_date: "2026-10-31",
@@ -169,6 +176,7 @@ try {
       { email: "invalid" },
       { website: "automated" },
       { phone: "123" },
+      { gender: "invalid" },
     ])
       assert.equal(
         (await server.createBooking(req({ ...payload, ...change }))).status,
@@ -182,6 +190,11 @@ try {
     one = await response.json();
     assert.equal(one.notification_status, "failed");
     assert.equal(one.booking.status, "confirmed");
+    assert.equal(one.booking.gender, "female");
+    assert.equal(one.booking.start_time, "17:00:00");
+    assert.equal(one.booking.end_time, "21:00:00");
+    assert.equal(emailBody.template_params.gender, "أنثى");
+    assert.equal(emailBody.template_params.visit_time, "5 – 9 مساءً");
     assert.ok(one.qr.startsWith("data:image/png;base64,"));
     assert.match(qrContent, /^ABAAD-BOOKING:[a-f0-9]{64}$/);
     assert.ok(!qrContent.includes(payload.phone));

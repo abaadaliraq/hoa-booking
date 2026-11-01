@@ -1,5 +1,12 @@
 import type { Slot } from "./domain";
 export const exhibitionHours = [17, 18, 19, 20] as const;
+/** A single server-owned day window; never silently assign an hourly slot. */
+export function dailyVisitSlot(slots: Slot[], date: string) {
+  return slots.find(s => s?.visit_date === date && typeof s.id === 'string' &&
+    typeof s.start_time === 'string' && typeof s.end_time === 'string' &&
+    s.start_time.slice(0,5) === '17:00' && s.end_time.slice(0,5) === '21:00' &&
+    Number.isInteger(s.remaining) && s.remaining > 0);
+}
 export function timeWindowLabel(start: string, end: string) {
   const hour = (value: string) => Number(value.slice(0, 2)) % 12 || 12;
   return `${hour(start)} – ${hour(end)} مساءً`;

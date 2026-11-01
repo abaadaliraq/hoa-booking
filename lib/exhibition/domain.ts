@@ -41,6 +41,7 @@ export type Slot = {
   remaining: number;
 };
 export type BookingInput = {
+  gender?: "male" | "female";
   full_name: string;
   phone: string;
   email: string;
@@ -60,8 +61,10 @@ export function validateBooking(value: unknown): BookingInput {
     notes = str("notes"),
     visit_date = str("visit_date"),
     slot_id = str("slot_id"),
+    gender = str("gender"),
     guest_count = x.guest_count;
   if (
+    (gender !== "" && gender !== "male" && gender !== "female") ||
     full_name.length < 2 ||
     full_name.length > 160 ||
     !phone ||
@@ -82,5 +85,7 @@ export function validateBooking(value: unknown): BookingInput {
     guest_count > 60
   )
     throw Error("تحقق من الاسم ورقم الهاتف مع رمز الدولة والتاريخ والموعد وعدد الأشخاص.");
-  return { full_name, phone, email, notes, visit_date, slot_id, guest_count };
+  // Keep legacy retry hashes unchanged when gender was absent in the saved request.
+  return { full_name, phone, email, notes, visit_date, slot_id, guest_count,
+    ...(gender ? { gender: gender as "male" | "female" } : {}) };
 }

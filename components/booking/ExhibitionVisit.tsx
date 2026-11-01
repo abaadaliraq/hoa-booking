@@ -4,7 +4,7 @@ import { type Slot } from "../../lib/exhibition/domain";
 import { bookingFormInput } from "../../lib/exhibition/form";
 import ExhibitionTicket, { type ExhibitionTicketData as Ticket } from "./ExhibitionTicket";
 import SaveQrButton from './SaveQrButton';
-import { visitTimeChoices, timeWindowLabel } from "../../lib/exhibition/schedule";
+import { dailyVisitSlot } from '../../lib/exhibition/schedule';
 import { WHATSAPP_BOOKING_PHONE } from "./bookingData";
 import styles from "./booking.module.css";
 export default function ExhibitionVisit({
@@ -19,13 +19,13 @@ export default function ExhibitionVisit({
   onTicket: (shown: boolean) => void;
 }) {
   const [slots, setSlots] = useState<Slot[]>([]),
-    [slot, setSlot] = useState(""),
     [error, setError] = useState(""),
     [slotsError, setSlotsError] = useState(""),
     [loading, setLoading] = useState(true),
     [name, setName] = useState(""),
     [phone, setPhone] = useState(""),
     [email, setEmail] = useState(""),
+    [gender, setGender] = useState(""),
     [notes, setNotes] = useState(""),
     [busy, setBusy] = useState(false),
     [ticket, setTicket] = useState<Ticket | null>(null);
@@ -68,7 +68,7 @@ export default function ExhibitionVisit({
           setPhone(saved.payload.phone || "");
           setEmail(saved.payload.email || "");
           setNotes(saved.payload.notes || "");
-          setSlot(saved.payload.slot_id || "");
+          setGender(saved.payload.gender || "");
           onLock(true);
         }
       } catch {
@@ -178,9 +178,9 @@ export default function ExhibitionVisit({
       setBusy(false);
     }
   }
-  const available = slots.filter((s) => s.visit_date === date),
-    selected = available.find((s) => s.id === slot);
-  const timeChoices = visitTimeChoices(slots, date, Number(count));
+  // This ID represents the entire visit day, never an automatically chosen hour.
+  const selected = dailyVisitSlot(slots,date);
+  const awaitingSetup = slots.some(s => s.visit_date === date) && !selected;
   return (
     <section
       dir="rtl"
@@ -188,7 +188,7 @@ export default function ExhibitionVisit({
       aria-label="حجز زيارة المعرض"
     >
       {!ticket && <>
-      <p>اختر وقت الزيارة وأكمل بياناتك. احتفظ بالباركود لإبرازه عند الوصول.</p>
+      <p>الزيارة بأي وقت بين 5 و9 مساءً. أكمل بياناتك واحتفظ بالباركود عند الوصول.</p>
       </>}
       {ticket ? (
         <div className={styles.ticketResult}>
@@ -256,6 +256,7 @@ export default function ExhibitionVisit({
         </div>
       ) : (
         <form ref={formRef} noValidate onSubmit={e => { e.preventDefault(); void submit(); }}>
+          <input type="hidden" name="slot_id" value={selected?.id || ""}/>
           <div className={styles.twoCols}>
             <label className={styles.field}>
               <span>الاسم الكامل</span>
@@ -294,21 +295,16 @@ export default function ExhibitionVisit({
               />
             </label>
             <label className={styles.field}>
-              <span>وقت الزيارة — بغداد</span>
+              <span>الجنس</span>
               <select
-                name="slot_id"
-                value={slot}
-                onChange={(e) => setSlot(e.target.value)}
-                disabled={loading || busy || hasPending}
+                name="gender"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                disabled={busy || hasPending}
               >
-                <option value="">
-                  {loading ? "جارٍ تحميل المواعيد…" : slotsError ? "تعذر تحميل المواعيد" : "اختر وقت الزيارة"}
-                </option>
-                {timeChoices.map(choice => (
-                  <option key={choice.key} value={choice.slot?.id || "unavailable-" + choice.key} disabled={choice.disabled}>
-                    {choice.label}{choice.slot && choice.disabled ? " — لا يتسع للعدد المحدد" : ""}
-                  </option>
-                ))}
+                <option value="">اختر الجنس</option>
+                <option value="male">ذكر</option>
+                <option value="female">أنثى</option>
               </select>
             </label>
             <label className={styles.fieldWide}>
@@ -326,16 +322,15 @@ export default function ExhibitionVisit({
             <input ref={honeypot} tabIndex={-1} autoComplete="off" />
           </label>
           {slotsError && <p role="alert" className={styles.warning}>{slotsError}</p>}
-          {!loading && !slotsError && !available.length && (
+          {!loading && !slotsError && !selected && (
             <p>
-              لا توجد مواعيد متاحة لهذا اليوم. اختر يوماً آخر.
+              {awaitingSetup ? "الحجز اليومي بانتظار تفعيل الإعدادات." : "لا توجد أماكن متاحة لهذا اليوم. اختر يوماً آخر."}
             </p>
           )}
+          {selected && selected.remaining < Number(count) && <p role="alert">الأماكن المتبقية لهذا اليوم لا تكفي للعدد المحدد.</p>}
           <p>
             ملخص الزيارة: {date} ·{" "}
-            {selected
-              ? timeWindowLabel(selected.start_time, selected.end_time)
-              : "اختر الوقت"}{" "}
+            من 5 إلى9 مساءً{" "}
             · {count} أشخاص
           </p>
           <div className={styles.actions}>
@@ -347,7 +342,7 @@ export default function ExhibitionVisit({
               {busy ? "جارٍ التحقق والحفظ…" : "تأكيد الحجز"}
             </button>
             <button type="button" disabled={busy} onClick={() => void load()}>
-              تحديث المواعيد
+              تحديث الإتاحة
             </button>
             {hasPending && (
               <button
